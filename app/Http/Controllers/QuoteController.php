@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Quote;
 use App\Models\UserQuote;
+use App\Models\Resource; // ✅ import Resource model
 use Illuminate\Support\Facades\Cache;
 
 class QuoteController extends Controller
@@ -33,11 +34,9 @@ class QuoteController extends Controller
                              ->first();
 
         if ($existing) {
-            // Already saved → unsave
             $existing->delete();
             return redirect()->back()->with('success', 'Quote removed!');
         } else {
-            // Not saved → save
             UserQuote::create([
                 'user_id' => auth()->id(),
                 'quote_id' => $request->quote_id,
@@ -46,7 +45,7 @@ class QuoteController extends Controller
         }
     }
 
-    // Admin uploads a new quote (not user saves!)
+    // Admin uploads a new quote
     public function store(Request $request)
     {
         $request->validate([
@@ -83,22 +82,27 @@ class QuoteController extends Controller
         return redirect()->back()->with('success', $userQuote->pinned ? 'Pinned!' : 'Unpinned!');
     }
 
-        public function dashboard()
-        {
-            $today = now()->toDateString(); // e.g. '2025-12-06'
+    // Dashboard
+    public function dashboard()
+    {
+        // Quote of the Day (cached)
+        $today = now()->toDateString();
+        $quote = Cache::remember("quote_of_the_day_{$today}", now()->addDay(), function () {
+            return Quote::inRandomOrder()->first();
+        });
 
-            $quote = Cache::remember("quote_of_the_day_{$today}", now()->addDay(), function () {
-                return Quote::inRandomOrder()->first();
-            });
+        // Saved quotes for current user
+        $savedQuoteIds = UserQuote::where('user_id', auth()->id())->pluck('quote_id');
 
-            $savedQuoteIds = UserQuote::where('user_id', auth()->id())->pluck('quote_id');
+        // Featured resources
+        $featuredResources = Resource::where('is_featured', true)->take(3)->get();
 
-            return view('dashboard', compact('quote', 'savedQuoteIds'));
-        }
-
-        public function redirectToJournal(Request $request)
-        {
-            $quoteId = $request->quote_id;
-            return redirect()->route('journal.create', ['quote_id' => $quoteId]);
-        }
+        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources'));
     }
+
+    public function redirectToJournal(Request $request)
+    {
+        $quoteId = $request->quote_id;
+        return redirect()->route('journal.create', ['quote_id' => $quoteId]);
+    }
+}

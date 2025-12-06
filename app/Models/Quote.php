@@ -17,4 +17,8 @@ class Quote extends Model
     {
         return $this->hasMany(JournalEntry::class);
     }
+    public function savers()
+    {
+        return $this->belongsToMany(User::class, 'quote_user_saves')->withTimestamps();
+    }
 }

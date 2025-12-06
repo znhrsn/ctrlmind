@@ -48,11 +48,6 @@ class User extends Authenticatable
 
     public function savedQuotes()
     {
-        return $this->hasMany(UserQuote::class);
-    }
-
-    public function journalEntries()
-    {
-        return $this->hasMany(JournalEntry::class);
+        return $this->belongsToMany(Quote::class, 'quote_user_saves')->withTimestamps();
     }
 }

@@ -14,13 +14,8 @@
                     {{ __('Dashboard') }}
                 </x-nav-link>
 
-                <x-nav-link :href="route('journal.index')" :active="request()->routeIs('journal.index')">
+                <x-nav-link :href="route('journal.index')" :active="request()->is('journal') || request()->is('journal/archived')">
                     {{ __('Journal') }}
-                </x-nav-link>
-
-                <!-- Archived Journal Tab -->
-                <x-nav-link :href="route('journal.archived')" :active="request()->routeIs('journal.archived')">
-                    {{ __('Archived') }}
                 </x-nav-link>
 
                 <x-nav-link :href="route('quotes.index')" :active="request()->routeIs('quotes.index')">
@@ -83,7 +78,7 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('journal.index')" :active="request()->routeIs('journal.index')">
+            <x-responsive-nav-link :href="route('journal.index')" :active="request()->is('journal') || request()->is('journal/archived')">
                 {{ __('Journal') }}
             </x-responsive-nav-link>
 

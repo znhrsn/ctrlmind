@@ -6,6 +6,8 @@ use App\Http\Controllers\DailyQuestionController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\MoodController;
+use App\Http\Controllers\ResourceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,6 +16,10 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [QuoteController::class, 'dashboard'])
+    ->middleware(['auth'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     // Profile routes
@@ -53,7 +59,6 @@ Route::post('/quotes/toggle', [QuoteController::class, 'toggle'])->name('quotes.
 Route::post('/quotes/pin/{quote}', [QuoteController::class, 'pin'])->name('quotes.pin');
 
 // Journal
-Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
 Route::post('/journal/redirect', [QuoteController::class, 'redirectToJournal'])->name('journal.redirect');
 Route::get('/journal/create', [JournalController::class, 'create'])->name('journal.create');
 Route::post('/journal/store', [JournalController::class, 'store'])->name('journal.store');
@@ -61,3 +66,28 @@ Route::delete('/journal/{id}/archive', [JournalController::class, 'archive'])->n
 Route::post('/journal/{id}/share', [JournalController::class, 'share'])->name('journal.share');
 Route::post('/journal/{id}/restore', [JournalController::class, 'restore'])->name('journal.restore');
 Route::get('/journal/archived', [JournalController::class, 'archived'])->name('journal.archived');
+
+
+Route::get('/journal/{id}/edit', [JournalController::class, 'edit'])->name('journal.edit');
+Route::put('/journal/{id}', [JournalController::class, 'update'])->name('journal.update');
+
+
+Route::get('/journal/archived', [JournalController::class, 'showArchived'])->name('journal.showArchived');
+
+
+// Show all journal entries
+Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
+
+// Show archived entries
+Route::get('/journal/archived', [JournalController::class, 'showArchived'])->name('journal.archived');
+
+// Archive an entry
+Route::post('/journal/{id}/archive', [JournalController::class, 'archiveEntry'])->name('journal.archiveEntry');
+
+// Restore an entry
+Route::post('/journal/{id}/restore', [JournalController::class, 'restore'])->name('journal.restore');
+
+// Mood Tracking
+Route::post('/mood', [MoodController::class, 'store'])->name('mood.store');
+
+Route::resource('resources', ResourceController::class)->middleware(['auth']);
