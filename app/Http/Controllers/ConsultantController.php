@@ -18,13 +18,14 @@ class ConsultantController extends Controller
     {
         $consultant = auth()->user();
 
+        // Fetch all messages between consultant and this user
         $messages = Message::where(function ($query) use ($user, $consultant) {
-                $query->where('user_id', $user->id)
-                    ->where('consultant_id', $consultant->id);
+                $query->where('sender_id', $user->id)
+                      ->where('receiver_id', $consultant->id);
             })
             ->orWhere(function ($query) use ($user, $consultant) {
-                $query->where('user_id', $consultant->id)
-                    ->where('consultant_id', $user->id);
+                $query->where('sender_id', $consultant->id)
+                      ->where('receiver_id', $user->id);
             })
             ->orderBy('created_at')
             ->get();

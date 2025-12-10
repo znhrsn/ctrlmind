@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
     Route::get('/journal/create', [JournalController::class, 'create'])->name('journal.create');
     Route::post('/journal/store', [JournalController::class, 'store'])->name('journal.store');
+    Route::post('/journal', [JournalController::class, 'store'])->name('journal.store');
     Route::get('/journal/{id}/edit', [JournalController::class, 'edit'])->name('journal.edit');
     Route::put('/journal/{id}', [JournalController::class, 'update'])->name('journal.update');
     Route::post('/journal/{id}/archive', [JournalController::class, 'archiveEntry'])->name('journal.archive');
@@ -58,10 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
     Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
     Route::post('/quotes/toggle', [QuoteController::class, 'toggle'])->name('quotes.toggle');
-    Route::post('/quotes/pin/{quote}', [QuoteController::class, 'pin'])->name('quotes.pin');
+    Route::post('/quotes/pin/', [QuoteController::class, 'pin'])->name('quotes.pin');
     Route::post('/journal/redirect', [QuoteController::class, 'redirectToJournal'])
      ->name('journal.redirect');
-    Route::post('/quotes/{quote}/pin', [QuoteController::class, 'pin'])->name('quotes.pin');
+    Route::post('/quotes/pin', [QuoteController::class, 'pin'])->name('quotes.pin');
 
     // Mood Tracking
     Route::post('/mood', [MoodController::class, 'store'])->name('mood.store');

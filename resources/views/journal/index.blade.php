@@ -27,8 +27,40 @@
             </a>
         </div>
     </x-slot>
-    
-    <div class="py-12">
+
+    <div class="py-7">
+
+        <!-- SINGLE CLEAN STATUS MESSAGE -->
+        @if(session('status'))
+            <div id="status-message" 
+                 class="fixed top-6 left-1/2 transform -translate-x-1/2 
+                        px-4 py-3 rounded-lg border border-green-600 
+                        bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 
+                        shadow-lg flex items-center gap-3 text-center z-50">
+
+                <!-- Check icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+
+                <span class="text-sm font-medium">
+                    {{ session('status') }}
+                </span>
+            </div>
+
+            <script>
+                setTimeout(() => {
+                    const msg = document.getElementById('status-message');
+                    if (msg) {
+                        msg.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+                        msg.style.opacity = "0";
+                        msg.style.transform = "translate(-50%, -20px)";
+                        setTimeout(() => msg.remove(), 500);
+                    }
+                }, 3000);
+            </script>
+        @endif
+
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900 dark:text-gray-100">
 
@@ -53,7 +85,7 @@
                             <div class="relative bg-gray-900 text-white rounded-lg shadow p-6">
 
                                 <!-- Dropdown menu (⋮) -->
-                                <div x-data="{ open: false }" class="absolute top-2 right-3">
+                                <div x-data="{ open: false, showArchiveModal: false }" class="absolute top-2 right-3">
                                     <button @click="open = !open" class="text-gray-400 hover:text-white text-xl font-bold">
                                         ⋮
                                     </button>
@@ -89,15 +121,33 @@
 
                                             <!-- Archive -->
                                             <li>
-                                                <form method="POST" action="{{ route('journal.archiveEntry', $entry->id) }}"
-                                                      onsubmit="return confirm('Are you sure you want to archive this entry?')">
+                                                <button type="button" @click="showArchiveModal = true" class="w-full text-left px-4 py-2 hover:bg-gray-700">
+                                                    Archive
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Archive confirmation modal -->
+                                    <div x-show="showArchiveModal" x-transition 
+                                         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                        <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-6 shadow-lg w-full max-w-sm mx-auto">
+                                            <h2 class="text-lg font-semibold mb-4">Confirm Archive</h2>
+                                            <p class="text-sm mb-6">Are you sure you want to archive this entry?</p>
+
+                                            <div class="flex justify-end gap-3">
+                                                <button @click="showArchiveModal = false" class="px-4 py-2 text-sm bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600">
+                                                    Cancel
+                                                </button>
+
+                                                <form method="POST" action="{{ route('journal.archiveEntry', $entry->id) }}">
                                                     @csrf
-                                                    <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-700">
+                                                    <button type="submit" class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700">
                                                         Archive
                                                     </button>
                                                 </form>
-                                            </li>
-                                        </ul>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

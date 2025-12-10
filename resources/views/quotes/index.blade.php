@@ -15,10 +15,28 @@
                     </div>
                 @else
                     <div class="space-y-6">
-                        @foreach($userQuotes as $userQuote)
-                            @php $quote = $userQuote->quote; @endphp
+                        @foreach($userQuotes as $quote)
                             <!-- Quote container -->
-                            <div class="bg-gray-900 text-white rounded-lg shadow p-6">
+                            <div class="relative rounded-lg shadow p-6
+                                @if($quote->pivot && $quote->pivot->is_pinned)
+                                    border-2 border-blue-500 bg-gradient-to-r from-blue-800 via-blue-700 to-blue-600
+                                @else
+                                    bg-gray-900 text-white
+                                @endif">
+
+                                <!-- Clickable star badge -->
+                                <form method="POST" action="{{ route('quotes.pin') }}" class="absolute top-2 right-2">
+                                    @csrf
+                                    <input type="hidden" name="quote_id" value="{{ $quote->id }}">
+                                    <button type="submit" class="text-2xl focus:outline-none">
+                                        @if($quote->pivot && $quote->pivot->is_pinned)
+                                            <span class="text-blue-400">★</span> <!-- filled star -->
+                                        @else
+                                            <span class="text-gray-400 hover:text-blue-400">☆</span> <!-- empty star -->
+                                        @endif
+                                    </button>
+                                </form>
+
                                 <p class="text-lg italic">“{{ $quote->text }}”</p>
                                 @if($quote->author)
                                     <p class="text-sm text-gray-400">— {{ $quote->author }}</p>
@@ -33,30 +51,7 @@
                                             <span class="text-red-500 text-2xl">♥</span>
                                         </button>
                                     </form>
-
-                                    <!-- Pin / Unpin -->
-                                    <form method="POST" action="{{ route('quotes.pin', $quote->id) }}">
-                                        @csrf
-                                        <button type="submit"
-                                                class="px-3 py-1 rounded {{ $userQuote->pinned ? 'bg-yellow-600 text-white' : 'bg-yellow-500 text-white' }}">
-                                            {{ $userQuote->pinned ? 'Unpin' : 'Pin' }}
-                                        </button>
-                                    </form>
-
-                                    <!-- Share -->
-                                    <form method="POST" action="{{ route('journal.redirect') }}">
-                                        @csrf
-                                        <input type="hidden" name="quote_id" value="{{ $quote->id }}">
-                                        <button type="submit"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded">
-                                            Share
-                                        </button>
-                                    </form>
                                 </div>
-
-                                @if($userQuote->pinned)
-                                    <span class="mt-2 inline-block text-yellow-400">📌 Pinned</span>
-                                @endif
                             </div>
                         @endforeach
                     </div>

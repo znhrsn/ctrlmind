@@ -9,12 +9,7 @@ class JournalEntry extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = [
-        'user_id',
-        'quote_id',
-        'reflection',
-        'shared_with_consultant', // new field for sharing toggle
-    ];
+    protected $fillable = ['user_id', 'reflection'];
 
     /**
      * Relationships

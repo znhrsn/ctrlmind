@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Chat with {{ $user->name }}
+            Chat with Dr. {{ $user->name }}
         </h2>
     </x-slot>
 
@@ -9,16 +9,37 @@
         <!-- Messages -->
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
             @foreach($messages as $message)
-                <div class="{{ $message->user_id == auth()->id() ? 'text-right' : 'text-left' }}">
-                    <div class="inline-block px-3 py-2 rounded-2xl 
-                        {{ $message->user_id == auth()->id() 
-                            ? 'bg-green-500 text-white' 
-                            : 'bg-gray-200 dark:bg-gray-700 dark:text-gray-100' }}">
-                        {{ $message->content }}
+                @php
+                    // true if this message came from the client user
+                    $isUserMessage = $message->sender_id == $user->id;
+
+                    // fetch the sender model (if you haven't eager-loaded)
+                    $sender = \App\Models\User::find($message->sender_id);
+
+                    // get the first letter of their name
+                    $initial = $sender ? strtoupper(substr($sender->name, 0, 1)) : '?';
+                @endphp
+
+                <div class="flex {{ $isUserMessage ? 'justify-start' : 'justify-end' }} items-end gap-2">
+                    @if($isUserMessage)
+                        <div class="w-8 h-8 bg-gray-400 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {{ $initial }}
+                        </div>
+                    @endif
+
+                    <div class="max-w-sm px-4 py-2 rounded-2xl shadow
+                        {{ $isUserMessage ? 'bg-gray-200 dark:bg-gray-700 dark:text-gray-100' : 'bg-green-500 text-white' }}">
+                        <p>{{ $message->content }}</p>
+                        <span class="text-xs text-gray-300 block mt-1 text-right">
+                            {{ $message->created_at->timezone('Asia/Manila')->format('h:i A') }}
+                        </span>
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">
-                        {{ $message->created_at->diffForHumans() }}
-                    </div>
+
+                    @unless($isUserMessage)
+                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {{ $initial }}
+                        </div>
+                    @endunless
                 </div>
             @endforeach
         </div>

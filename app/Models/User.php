@@ -51,9 +51,12 @@ class User extends Authenticatable
     /**
      * Quotes saved by the user.
      */
+    // User.php
     public function savedQuotes()
     {
-        return $this->belongsToMany(Quote::class, 'quote_user_saves')->withTimestamps();
+        return $this->belongsToMany(\App\Models\Quote::class, 'user_quotes', 'user_id', 'quote_id')
+                    ->withTimestamps()
+                    ->withPivot('is_pinned'); // include pivot field
     }
 
     /**

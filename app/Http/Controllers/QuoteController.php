@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Quote;
-use App\Models\UserQuote;
 use App\Models\Resource; 
 use Illuminate\Support\Facades\Cache;
 
@@ -13,11 +12,14 @@ class QuoteController extends Controller
     // Show all quotes saved by the current user
     public function index()
     {
-        $userQuotes = UserQuote::where('user_id', auth()->id())
-                            ->with('quote')
-                            ->orderByDesc('pinned')   // pinned first
-                            ->orderBy('created_at', 'desc') // then newest saved
-                            ->get();
+        $user = auth()->user();
+
+        // Use relationship instead of raw UserQuote
+        $userQuotes = $user->savedQuotes()
+            ->withPivot('is_pinned')
+            ->orderByDesc('pivot_is_pinned')   // pinned first
+            ->orderBy('pivot_created_at', 'desc') // then newest saved
+            ->get();
 
         return view('quotes.index', compact('userQuotes'));
     }
@@ -25,29 +27,16 @@ class QuoteController extends Controller
     // Save/unsave toggle
     public function toggle(Request $request)
     {
-        $userId = auth()->id();
-        $quoteId = $request->quote_id;
+        $quoteId = $request->input('quote_id');
+        $user = auth()->user();
 
-        $quote = Quote::find($quoteId);
-        if (!$quote) {
-            return redirect()->back()->with('error', 'Quote not found.');
-        }
-
-        $existing = UserQuote::where('user_id', $userId)
-                            ->where('quote_id', $quoteId)
-                            ->first();
-
-        if ($existing) {
-            $existing->delete(); // unsave
+        if ($user->savedQuotes()->where('quote_id', $quoteId)->exists()) {
+            $user->savedQuotes()->detach($quoteId);
+            return redirect()->back()->with('status', 'Quote Unsaved');
         } else {
-            UserQuote::create([
-                'user_id' => $userId,
-                'quote_id' => $quoteId,
-                'pinned' => false,
-            ]);
+            $user->savedQuotes()->attach($quoteId);
+            return redirect()->back()->with('status', 'Quote Saved');
         }
-
-        return redirect()->back();
     }
 
     // Admin uploads a new quote
@@ -67,26 +56,28 @@ class QuoteController extends Controller
     }
 
     // Pin/unpin quotes (max 3 per user)
-    public function pin($quoteId)
+    public function pin(Request $request)
     {
-        $userId = auth()->id();
+        $quoteId = $request->input('quote_id');
+        $user = auth()->user();
 
-        $userQuote = UserQuote::where('user_id', $userId)
-                            ->where('quote_id', $quoteId)
-                            ->firstOrFail();
+        $pinnedCount = $user->savedQuotes()->wherePivot('is_pinned', true)->count();
+        $alreadyPinned = $user->savedQuotes()
+            ->wherePivot('is_pinned', true)
+            ->where('quote_id', $quoteId)
+            ->exists();
 
-        if (!$userQuote->pinned) {
-            $pinnedCount = UserQuote::where('user_id', $userId)
-                                    ->where('pinned', true)
-                                    ->count();
-            if ($pinnedCount >= 3) {
-                return redirect()->back()->with('error', 'You can only pin 3 quotes.');
-            }
+        if ($alreadyPinned) {
+            $user->savedQuotes()->updateExistingPivot($quoteId, ['is_pinned' => false]);
+            return redirect()->back()->with('status', 'Quote Unpinned');
         }
 
-        $userQuote->update(['pinned' => !$userQuote->pinned]);
+        if ($pinnedCount >= 3) {
+            return redirect()->back()->with('status', 'You can only pin 3 quotes. Unpin one first.');
+        }
 
-        return redirect()->back()->with('success', $userQuote->pinned ? 'Pinned!' : 'Unpinned!');
+        $user->savedQuotes()->updateExistingPivot($quoteId, ['is_pinned' => true]);
+        return redirect()->back()->with('status', 'Quote Pinned');
     }
 
     // Dashboard
@@ -99,7 +90,12 @@ class QuoteController extends Controller
             return Quote::inRandomOrder()->first();
         });
 
-        $savedQuoteIds = UserQuote::where('user_id', auth()->id())->pluck('quote_id');
+        // ✅ Define savedQuoteIds properly
+        $savedQuoteIds = auth()->user()
+            ->savedQuotes()   // relationship from User model
+            ->pluck('quote_id'); // or ->pluck('quotes.id') depending on your schema
+
+        // Featured resources
         $featuredResources = Resource::where('is_featured', true)->take(3)->get();
 
         return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources'));

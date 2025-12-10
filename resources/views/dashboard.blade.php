@@ -34,7 +34,6 @@
                         </form>
                     </div>
                 @endif
-                
             </div>
 
             <!-- Mood Tracker -->

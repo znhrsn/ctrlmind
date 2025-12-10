@@ -9,14 +9,17 @@ use App\Models\User;
 class ChatController extends Controller
 {
     public function index()
-{
-    $consultant = User::find(auth()->user()->consultant_id);
+    {
+        $consultant = User::find(auth()->user()->consultant_id);
 
         // Fetch messages between the logged-in user and their consultant
-        $messages = Message::where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhere('consultant_id', auth()->id())
-                    ->orWhere('receiver_id', auth()->id());
+        $messages = Message::where(function ($query) use ($consultant) {
+                $query->where('sender_id', auth()->id())
+                      ->where('receiver_id', $consultant->id);
+            })
+            ->orWhere(function ($query) use ($consultant) {
+                $query->where('sender_id', $consultant->id)
+                      ->where('receiver_id', auth()->id());
             })
             ->orderBy('created_at')
             ->get();
@@ -24,16 +27,18 @@ class ChatController extends Controller
         // If no messages yet, send a welcome message from consultant
         if ($messages->isEmpty() && $consultant) {
             Message::create([
-                'user_id'       => $consultant->id,   // consultant is sender
-                'consultant_id' => auth()->id(),      // logged-in user is receiver
-                'receiver_id'   => auth()->id(),      // explicitly set receiver
-                'content'       => 'Hi! I’m here if you need anything. How can I help today?',
+                'sender_id'   => $consultant->id,  // consultant sends
+                'receiver_id' => auth()->id(),     // user receives
+                'content'     => 'Hi! I’m here if you need anything. How can I help today?',
             ]);
 
-            $messages = Message::where(function ($query) {
-                    $query->where('user_id', auth()->id())
-                        ->orWhere('consultant_id', auth()->id())
-                        ->orWhere('receiver_id', auth()->id());
+            $messages = Message::where(function ($query) use ($consultant) {
+                    $query->where('sender_id', auth()->id())
+                          ->where('receiver_id', $consultant->id);
+                })
+                ->orWhere(function ($query) use ($consultant) {
+                    $query->where('sender_id', $consultant->id)
+                          ->where('receiver_id', auth()->id());
                 })
                 ->orderBy('created_at')
                 ->get();
@@ -41,20 +46,17 @@ class ChatController extends Controller
 
         return view('chat.index', compact('messages', 'consultant'));
     }
-    
+
     public function store(Request $request)
     {
         $consultantId = auth()->user()->consultant_id;
 
         Message::create([
-            'user_id'       => auth()->id(),     // logged-in user
-            'consultant_id' => $consultantId,    // consultant assigned
-            'receiver_id'   => $consultantId,    // consultant receives
-            'content'       => $request->content,
+            'sender_id'   => auth()->id(),     // logged-in user sends
+            'receiver_id' => $consultantId,    // consultant receives
+            'content'     => $request->content,
         ]);
 
         return redirect()->back();
     }
-
-
 }

@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 
 class JournalController extends Controller
 {
-    // Show the "create journal entry" form with a quote (optional)
+    /* ---------------------------------------------------------
+        CREATE ENTRY
+    --------------------------------------------------------- */
     public function create(Request $request)
     {
         $quoteId = $request->quote_id;
@@ -17,118 +19,171 @@ class JournalController extends Controller
         return view('journal.create', compact('quote'));
     }
 
-    // Store a journal entry (either free-form or tied to a quote)
+    /* ---------------------------------------------------------
+        STORE ENTRY
+    --------------------------------------------------------- */
     public function store(Request $request)
     {
         $request->validate([
-            'reflection' => 'required|string|max:500',
-            'quote_id'   => 'nullable|exists:quotes,id',
+            'reflection' => 'required|string',
         ]);
 
         JournalEntry::create([
             'user_id'    => auth()->id(),
-            'quote_id'   => $request->quote_id, // can be null
             'reflection' => $request->reflection,
         ]);
 
-        return redirect()->route('journal.index')->with('success', 'Journal entry saved!');
+        return redirect()
+            ->route('journal.index')
+            ->with('status', 'Entry saved successfully!');
     }
 
-    // Show all journal entries (non-archived)
+    /* ---------------------------------------------------------
+        VIEW ACTIVE ENTRIES
+    --------------------------------------------------------- */
     public function index()
     {
         $entries = JournalEntry::where('user_id', auth()->id())
-                               ->where('archived', false)
-                               ->with('quote')
-                               ->latest()
-                               ->get();
+            ->where('archived', false)
+            ->with('quote')
+            ->latest()
+            ->get();
 
         return view('journal.index', compact('entries'));
     }
 
-    // Show archived entries
+    /* ---------------------------------------------------------
+        VIEW ARCHIVED ENTRIES
+    --------------------------------------------------------- */
     public function showArchived()
     {
-        // ✅ Cleanup: delete entries older than 30 days
+        // Auto-delete entries older than 30 days
         JournalEntry::where('archived', true)
+            ->whereNotNull('archived_at')
             ->where('archived_at', '<', now()->subDays(30))
             ->delete();
 
         $entries = JournalEntry::where('user_id', auth()->id())
-                               ->where('archived', true)
-                               ->with('quote')
-                               ->latest()
-                               ->get();
+            ->where('archived', true)
+            ->with('quote')
+            ->latest()
+            ->get();
 
         return view('journal.archived', compact('entries'));
     }
 
-    // Archive an entry
+    /* ---------------------------------------------------------
+        ARCHIVE ENTRY
+    --------------------------------------------------------- */
     public function archiveEntry($id)
     {
-        $entry = JournalEntry::where('user_id', auth()->id())->findOrFail($id);
+        $entry = JournalEntry::where('user_id', auth()->id())
+            ->findOrFail($id);
 
         $entry->archived = true;
-        $entry->archived_at = now('Asia/Manila'); // ✅ set timestamp here
+        $entry->archived_at = now();
         $entry->save();
 
-        return redirect()->back()->with('success', 'Entry archived successfully.');
+        return redirect()
+            ->route('journal.index')
+            ->with('status', 'Entry archived successfully!');
     }
 
-    // Restore an archived entry
+    /* ---------------------------------------------------------
+        RESTORE ENTRY
+    --------------------------------------------------------- */
     public function restore($id)
     {
         $entry = JournalEntry::where('user_id', auth()->id())
-                             ->where('archived', true)
-                             ->findOrFail($id);
+            ->where('archived', true)
+            ->findOrFail($id);
 
         $entry->archived = false;
-        $entry->archived_at = null; // ✅ clear timestamp when restoring
+        $entry->archived_at = null;
         $entry->save();
 
-        return redirect()->back()->with('success', 'Entry restored.');
+        return redirect()
+            ->back()
+            ->with('status', 'Entry restored successfully!');
     }
 
-    // Toggle sharing with consultant
+    public function restoreEntry($id)
+    {
+        $entry = JournalEntry::withTrashed()->findOrFail($id);
+        $entry->restore();
+
+        // Redirect straight to journal.index so the toast shows
+        return redirect()->route('journal.index')
+                        ->with('status', 'Entry restored successfully!');
+    }
+
+    /* ---------------------------------------------------------
+        SHARE / UNSHARE ENTRY
+    --------------------------------------------------------- */
     public function share($id)
     {
-        $entry = JournalEntry::where('user_id', auth()->id())->findOrFail($id);
+        $entry = JournalEntry::where('user_id', auth()->id())
+            ->findOrFail($id);
 
         $entry->shared_with_consultant = !$entry->shared_with_consultant;
         $entry->save();
 
-        return redirect()->route('journal.index')->with('success', 'Sharing preference updated.');
+        return redirect()
+            ->route('journal.index')
+            ->with('status', 'Sharing preference updated.');
     }
 
-    // Edit entry (only if created today)
+    /* ---------------------------------------------------------
+        EDIT (ONLY WITHIN 24 HOURS)
+    --------------------------------------------------------- */
     public function edit($id)
     {
-        $entry = JournalEntry::where('user_id', auth()->id())->findOrFail($id);
+        $entry = JournalEntry::where('user_id', auth()->id())
+            ->findOrFail($id);
 
-        if (!$entry->created_at->isToday()) {
-            return redirect()->route('journal.index')->with('error', 'You can only edit entries on the same day.');
+        // Allow edit only if entry is less than 24 hours old
+        if ($entry->created_at->lt(now()->subDay())) {
+            return redirect()
+                ->route('journal.index')
+                ->with('status', 'You can only edit entries within 24 hours.');
         }
 
         return view('journal.edit', compact('entry'));
     }
 
-    // Update entry (only if within 24h)
+    /* ---------------------------------------------------------
+        UPDATE ENTRY
+    --------------------------------------------------------- */
     public function update(Request $request, $id)
     {
+        $entry = JournalEntry::where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        // Validate reflection text
         $request->validate([
-            'reflection' => 'required|string|max:500',
+            'reflection' => 'required|string',
         ]);
 
-        $entry = JournalEntry::where('user_id', auth()->id())->findOrFail($id);
-
-        if ($entry->created_at->timezone(config('app.timezone'))->lte(now()->subDay())) {
-            return redirect()->route('journal.index')
-                ->with('error', 'Editing is only allowed within 24 hours of creation.');
+        // Check if editing window expired
+        if ($entry->created_at->lt(now()->subDay())) {
+            return redirect()
+                ->route('journal.index')
+                ->with('status', 'Edit time has expired.');
         }
 
+        // If no changes
+        if ($entry->reflection === $request->reflection) {
+            return redirect()
+                ->route('journal.index')
+                ->with('status', 'No changes were made.');
+        }
+
+        // Update
         $entry->reflection = $request->reflection;
         $entry->save();
 
-        return redirect()->route('journal.index')->with('success', 'Journal entry updated.');
+        return redirect()
+            ->route('journal.index')
+            ->with('status', 'Journal entry updated successfully.');
     }
 }
