@@ -35,6 +35,9 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('resources.index') }}" :active="request()->routeIs('resources.index')">
+                        {{ __('Resources') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('journal.index')" :active="request()->is('journal') || request()->is('journal/archived')">
                         {{ __('Journal') }}
                     </x-nav-link>

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
+            $table->boolean('is_featured')->default(false);
         });
     }
 
