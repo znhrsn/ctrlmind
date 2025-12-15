@@ -17,7 +17,7 @@ class ResourceSeeder extends Seeder
         Resource::create([
             'title' => 'Understanding Stress vs Anxiety',
             'description' => 'A simple explanation of how stress differs from anxiety and how they affect the mind.',
-            'url' => 'https://example.com/stress-vs-anxiety',
+            'url' => 'https://www.healthline.com/health/stress-and-anxiety',
             'is_featured' => false,
             'section' => 'Educational Corner',
         ]);

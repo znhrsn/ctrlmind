@@ -97,6 +97,9 @@ require __DIR__.'/auth.php';
 
     // Resources
     Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
+    Route::get('/resources/{resource}', [ResourceController::class, 'show'])
+    ->name('resources.show');
+    
 
 
 

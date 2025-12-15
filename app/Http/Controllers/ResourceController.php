@@ -16,4 +16,10 @@ class ResourceController extends Controller
 
     return view('resources.index', compact('featuredResources', 'educational', 'coping', 'help'));
     }
+
+    public function show(Resource $resource)
+{
+    return view('resources.show', compact('resource'));
+}
+
 }
