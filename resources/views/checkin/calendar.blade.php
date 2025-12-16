@@ -52,9 +52,7 @@
             @endif
 
             {{-- Calendar grid (simple current month) --}}
-            <div x-data="{selectedDate:null}"                 @select-date.window="selectedDate = $event.detail.date"            <div @open-checkin.window="if($event.detail.date === window.TODAY) selectedDate = $event.detail.date" 
-                 @close-checkin.window="selectedDate = null"
-                 class="grid grid-cols-7 gap-1 mt-2 w-full">
+            <div x-data="{ selectedDate: null, today: window.TODAY }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php
                     $startOfMonth = $displayDate->copy()->startOfMonth();
                     $endOfMonth = $displayDate->copy()->endOfMonth();
@@ -82,10 +80,7 @@
                         $isFuture = $date->gt($today);
                     @endphp
 
-                    <div :class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400 bg-blue-50' : '{{ $isPastCell ? 'bg-gray-100 opacity-70 cursor-not-allowed' : ($isToday ? 'bg-white cursor-pointer' : 'bg-gray-50 cursor-not-allowed') }}'"
-                         class="h-16 p-2 border rounded relative"
-                         @if($isToday) @click="selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' })" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}" @endif
-                    >
+                    <div x-bind:class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400 bg-blue-50' : ( '{{ $date->toDateString() }}' < today ? 'bg-gray-100 opacity-70 cursor-not-allowed' : ( '{{ $date->toDateString() }}' === today ? 'bg-white cursor-pointer' : 'bg-gray-50 cursor-not-allowed'))" class="h-16 p-2 border rounded relative" @click="if ('{{ $date->toDateString() }}' === today) { selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' }) }" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}">
                         <div class="text-xs font-medium relative z-10">{{ $date->day }}</div>
 
                         @php
@@ -129,7 +124,7 @@
         </div>
 
         {{-- Modal: Check-in form (Alpine driven) --}}
-        <div x-data="{open:false,date:null,period:'{{ $currentPeriod }}',mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null}" @open-checkin.window="(function(){ date = $event.detail.date; period = '{{ $currentPeriod }}'; existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
+        <div x-data="{open:false,date:null,period:(function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; if(h >= 12 && h < 17) return 'Afternoon'; return 'Evening'; })(),mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null }" @open-checkin.window="(function(){ date = $event.detail.date; period = (function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; if(h >= 12 && h < 17) return 'Afternoon'; return 'Evening'; })(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
             <template x-if="open">
                 <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div class="bg-white rounded shadow-lg w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
