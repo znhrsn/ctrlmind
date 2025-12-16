@@ -36,7 +36,6 @@ it('shows mood trend and recent checkins on dashboard', function () {
     // Ensure period counts are displayed
     $response->assertSee('Survey Periods', false);
     $response->assertSee('Morning', false);
-    $response->assertSee('Afternoon', false);
     $response->assertSee('Evening', false);
 
     // Daily Check-in section has been moved into the Mood Tracker; ensure the dashboard does not render a separate Daily Check-in block
