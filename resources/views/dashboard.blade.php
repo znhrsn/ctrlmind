@@ -106,6 +106,24 @@
                             @endfor
                         </div>
 
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Survey Periods</h4>
+                        @php
+                            $periodMap = ['morning'=>'🌞 Morning','afternoon'=>'🌤 Afternoon','evening'=>'🌙 Evening'];
+                            $pmax = max([$periodCounts->max() ?? 0,1]);
+                        @endphp
+                        <div class="space-y-2 mb-4">
+                            @foreach(['morning','afternoon','evening'] as $p)
+                                @php $count = $periodCounts[$p] ?? 0; $pct = round(($count/$pmax)*100); @endphp
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 text-xs">{{ $periodMap[$p] }}</div>
+                                    <div class="flex-1 bg-gray-100 rounded overflow-hidden">
+                                        <div class="bg-green-500 h-3" style="width: {{ $pct }}%"></div>
+                                    </div>
+                                    <div class="w-8 text-xs text-gray-500 text-right">{{ $count }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+
                         <h5 class="text-sm font-semibold text-gray-700 mb-2">Recent Check-ins</h5>
                         <div class="space-y-2 text-sm">
                             @foreach($recentCheckins as $c)

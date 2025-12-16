@@ -129,6 +129,13 @@ class QuoteController extends Controller
             ->groupBy('mood')
             ->map->count();
 
+        // Counts by period (morning/afternoon/evening)
+        $periodCounts = \App\Models\CheckIn::where('user_id', $user->id)
+            ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
+            ->get()
+            ->groupBy('period')
+            ->map->count();
+
         // Recent checkins (last 7 entries)
         $recentCheckins = \App\Models\CheckIn::where('user_id', $user->id)
             ->orderBy('date', 'desc')
@@ -136,7 +143,7 @@ class QuoteController extends Controller
             ->take(7)
             ->get();
 
-        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources', 'moodTrend', 'moodCounts', 'recentCheckins'));
+        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources', 'moodTrend', 'moodCounts', 'periodCounts', 'recentCheckins'));
     }
 
     // Redirect to journal creation with quote
