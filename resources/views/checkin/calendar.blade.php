@@ -128,7 +128,7 @@
         </div>
 
         {{-- Modal: Check-in form (Alpine driven) --}}
-        <div x-data="{open:false,date:null,period:'evening',mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null,detectPeriod:function(){let h=(new Date()).getHours();if(h>=5 && h<12) return 'morning'; if(h>=12 && h<17) return 'afternoon'; return 'evening';}}" @open-checkin.window="(function(){ date = $event.detail.date; period = detectPeriod(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
+        <div x-data="{open:false,date:null,period:'Evening',mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null,detectPeriod:function(){let h=(new Date()).getHours();if(h>=5 && h<12) return 'Morning'; if(h>=12 && h<17) return 'Afternoon'; return 'Evening';}}" @open-checkin.window="(function(){ date = $event.detail.date; period = detectPeriod(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
             <template x-if="open">
                 <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div class="bg-white rounded shadow-lg w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
@@ -165,7 +165,7 @@
                                 </div>
 
                                 {{-- Morning survey --}}
-                                <div x-show="period=='morning'" class="mb-2 bg-gray-50 p-3 rounded">
+                                <div x-show="period=='Morning'" class="mb-2 bg-gray-50 p-3 rounded">
                                     <h5 class="font-semibold mb-2">🌞 Morning Check-In</h5>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Energy <span class="text-xs text-gray-500">(<span x-text="energy"></span>)</span></label>
@@ -180,7 +180,7 @@
                                 </div>
 
                                 {{-- Afternoon survey (simple) --}}
-                                <div x-show="period=='afternoon'" class="mb-2 bg-gray-50 p-3 rounded">
+                                <div x-show="period=='Afternoon'" class="mb-2 bg-gray-50 p-3 rounded">
                                     <h5 class="font-semibold mb-2">🌤 Afternoon Check-In</h5>
                                     <p class="text-sm text-gray-500 mb-2">Quick mood check and a one-line note (keeps it fast).</p>
 
@@ -198,7 +198,7 @@
                                 </div>
 
                                 {{-- Evening survey (default wellness) --}}
-                                <div x-show="period=='evening'" class="mb-2 bg-gray-50 p-3 rounded">
+                                <div x-show="period=='Evening'" class="mb-2 bg-gray-50 p-3 rounded">
                                     <h5 class="font-semibold mb-2">🌙 Evening Reflection</h5>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Satisfaction with the Day <span class="text-xs text-gray-500">(<span x-text="satisfaction"></span>)</span></label>
@@ -217,7 +217,7 @@
                                     </div>
                                 </div>
 
-                                <div x-show="period != 'afternoon'">
+                                <div x-show="period != 'Afternoon'">
                                     <label class="block text-sm mb-1">Note (optional)</label>
                                     <textarea name="note" x-model="note" class="w-full border rounded p-2" rows="3"></textarea>
                                 </div>
