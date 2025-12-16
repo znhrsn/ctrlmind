@@ -54,7 +54,7 @@
             @endif
 
             {{-- Calendar grid (simple current month) --}}
-            <div x-data="{ selectedDate: null, todayClient: (window.TODAY || (new Date()).toISOString().slice(0,10)), todayServer: (window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))), isClickable(date){ return date === this.todayClient || date === this.todayServer }, isPast(date){ return Date.parse(date) < Date.parse(this.todayClient) && Date.parse(date) < Date.parse(this.todayServer) } }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
+            <div x-data="{ selectedDate: null, todayClientStr: (window.TODAY || (new Date()).toISOString().slice(0,10)), todayServerStr: (window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))), todayClientEpoch: new Date((window.TODAY || (new Date()).toISOString().slice(0,10)) + 'T00:00:00').getTime(), todayServerEpoch: new Date((window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))) + 'T00:00:00').getTime(), dateEpoch(date){ return new Date(date + 'T00:00:00').getTime() }, isClickable(date){ return this.dateEpoch(date) === this.todayClientEpoch || this.dateEpoch(date) === this.todayServerEpoch }, isPast(date){ return this.dateEpoch(date) < Math.min(this.todayClientEpoch, this.todayServerEpoch) } }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php
                     $startOfMonth = $displayDate->copy()->startOfMonth();
                     $endOfMonth = $displayDate->copy()->endOfMonth();
