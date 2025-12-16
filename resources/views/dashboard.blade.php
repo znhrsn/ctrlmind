@@ -125,15 +125,7 @@
                 </div>
             </div>
 
-            <!-- Daily Check-in -->
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2 mb-4">
-                    Daily Check-in
-                </h3>
-                <a href="{{ route('checkin.index', ['open_date' => now()->toDateString()]) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Start Today's Check-in
-                </a>
-            </div>
+
 
             <!-- Footer -->
             <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
