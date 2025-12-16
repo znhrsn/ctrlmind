@@ -28,7 +28,7 @@
                         {{ $isUser ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-gray-100' }}">
                         <p>{{ $message->content }}</p>
                         <span class="text-xs text-gray-300 block mt-1 text-right">
-                            {{ $message->created_at->timezone('Asia/Manila')->format('h:i A') }}
+                            {{ $message->created_at->timezone('Asia/Manila')->format('M d, Y h:i A') }}
                         </span>
                     </div>
 
