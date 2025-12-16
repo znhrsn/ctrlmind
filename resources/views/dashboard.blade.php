@@ -128,12 +128,33 @@
                                 // compute average mood value for the period (ignoring nulls)
                                 $avgMood = collect($moodTrend)->filter(fn($it)=>!is_null($it['avg']))->avg('avg') ?: null;
                             @endphp
-                            <div class="flex items-center gap-4">
-                                <div>
-                                    <svg width="{{ $width }}" height="{{ $height }}" class="block">
-                                        <polyline fill="none" stroke="#2563EB" stroke-width="2" points="{{ trim($points) }}" />
-                                    </svg>
+                            <div x-data="{ smooth: false }" class="flex items-center gap-4">
+                                <div class="flex flex-col items-start gap-2">
+                                    <label class="text-xs text-gray-500 dark:text-gray-300 flex items-center gap-2">
+                                        <input type="checkbox" x-model="smooth" class="rounded text-blue-500"> <span>Smoothed</span>
+                                    </label>
+                                    <div>
+                                        <svg width="{{ $width }}" height="{{ $height }}" class="block">
+                                            <polyline x-bind:style="smooth ? 'stroke-linecap:round;stroke-linejoin:round;stroke-width:3' : 'stroke-width:2'" fill="none" stroke="#2563EB" points="{{ trim($points) }}" />
+
+                                            @php
+                                                $i = 0;
+                                                foreach($moodTrend as $p){
+                                                    $x = $i * $step;
+                                                    if (is_null($p['avg'])) {
+                                                        $y = $height; // bottom
+                                                    } else {
+                                                        $y = $height - (($p['avg'] - 1) / 4) * $height; // map 1..5
+                                                    }
+                                            @endphp
+                                                @if(!is_null($p['avg']))
+                                                    <circle cx="{{ round($x,2) }}" cy="{{ round($y,2) }}" r="4" fill="transparent" stroke="transparent" />
+                                                @endif
+                                            @php $i++; } @endphp
+                                        </svg>
+                                    </div>
                                 </div>
+
                                 <div>
                                     <div class="text-2xl font-bold">{{ $avgMood ? number_format($avgMood,1) : '-' }}</div>
                                     <div class="text-xs text-gray-400 dark:text-gray-300">Average mood</div>
