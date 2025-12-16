@@ -4,17 +4,6 @@
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
                 {{ __('My Clients') }}
             </h2>
-
-            {{-- Notifications link --}}
-            <a href="{{ route('consultant.notifications.index') }}" 
-               class="relative text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
-                Notifications
-                @if($unreadCount > 0)
-                    <span class="ml-1 bg-red-600 text-white rounded-full px-2 text-xs">
-                        {{ $unreadCount }}
-                    </span>
-                @endif
-            </a>
         </div>
     </x-slot>
 

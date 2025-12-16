@@ -177,6 +177,10 @@
                     </div>
                 @endif
             </div>
+                        <!-- Footer -->
+            <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
+                © 2025 CTRL+Mind EVSU
+            </footer>
         </div>
     </div>
 </x-app-layout>

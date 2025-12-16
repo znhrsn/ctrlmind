@@ -16,6 +16,10 @@
 
             <!-- Educational Corner -->
             <div>
+            <img src="{{ asset('images/educorner.png') }}" 
+                    alt="Educational Corner" 
+                    class="mx-auto rounded-lg shadow-md mb-6">
+
                 <h4 class="text-md font-semibold text-gray-200 mb-2">
                     Educational Corner
                 </h4>
@@ -100,7 +104,10 @@
 
                 </div>
             </div>
-
+            <!-- Footer -->
+            <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
+                © 2025 CTRL+Mind EVSU
+            </footer>
         </div>
     </div>
 </x-app-layout>

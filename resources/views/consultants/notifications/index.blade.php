@@ -19,7 +19,9 @@
                 </div>
             </div>
         @empty
-            <p class="text-sm text-gray-500">No notifications yet.</p>
+            <div class="py-4 px-6">
+                <p class="text-gray-600 dark:text-gray-300">No notifications yet.</p>
+            </div>
         @endforelse
 
         <div class="mt-4">
