@@ -44,13 +44,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- CTA / Quick Check-in -->
                     <div class="col-span-1 md:col-span-1 flex flex-col items-center justify-center p-4 border rounded">
-                        <p class="mb-4 text-center text-gray-500">How are you feeling today?</p>
+                        <p class="mb-4 text-center text-gray-500 dark:text-gray-300">How are you feeling today?</p>
                         <a href="{{ route('checkin.index', ['open_date' => now()->toDateString()]) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start Today's Check-in</a>
                     </div>
 
                     <!-- Distribution & Recent (center column) -->
                     <div class="col-span-1 md:col-span-1 p-4 border rounded flex flex-col items-center justify-center">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Mood Distribution (30d)</h4>
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mood Distribution (30d)</h4>
                         @php
                             $max = max([$moodCounts->max() ?? 0,1]);
                             $emojiMap = [1=>'😢',2=>'🙁',3=>'😐',4=>'🙂',5=>'😊'];
@@ -59,16 +59,16 @@
                             @for($m=5;$m>=1;$m--)
                                 @php $count = $moodCounts[$m] ?? 0; $pct = round(($count/$max)*100); @endphp
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 text-sm">{{ $emojiMap[$m] }}</div>
-                                    <div class="flex-1 bg-gray-100 rounded overflow-hidden">
+                                    <div class="w-6 text-sm text-gray-500 dark:text-gray-300">{{ $emojiMap[$m] }}</div>
+                                    <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
                                         <div class="bg-blue-500 h-3" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <div class="w-8 text-xs text-gray-500 text-right">{{ $count }}</div>
+                                    <div class="w-8 text-xs text-gray-500 dark:text-gray-300 text-right">{{ $count }}</div>
                                 </div>
                             @endfor
                         </div>
 
-                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Survey Periods</h4>
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Survey Periods</h4>
                         @php
                             $periodMap = ['morning'=>'🌞 Morning','afternoon'=>'🌤 Afternoon','evening'=>'🌙 Evening'];
                             $pmax = max([$periodCounts->max() ?? 0,1]);
@@ -77,16 +77,16 @@
                             @foreach(['morning','afternoon','evening'] as $p)
                                 @php $count = $periodCounts[$p] ?? 0; $pct = round(($count/$pmax)*100); @endphp
                                 <div class="flex items-center gap-2">
-                                    <div class="w-20 text-xs">{{ $periodMap[$p] }}</div>
-                                    <div class="flex-1 bg-gray-100 rounded overflow-hidden">
+                                    <div class="w-20 text-xs text-gray-500 dark:text-gray-300">{{ $periodMap[$p] }}</div>
+                                    <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
                                         <div class="bg-green-500 h-3" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <div class="w-8 text-xs text-gray-500 text-right">{{ $count }}</div>
+                                    <div class="w-8 text-xs text-gray-500 dark:text-gray-300 text-right">{{ $count }}</div>
                                 </div>
                             @endforeach
                         </div>
 
-                        <h5 class="text-sm font-semibold text-gray-700 mb-2">Recent Check-ins</h5>
+                        <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Check-ins</h5>
                         <div class="space-y-2 text-sm w-full max-w-xs">
                             @foreach($recentCheckins as $c)
                                 @php
@@ -95,7 +95,7 @@
                                 <div class="flex items-start gap-3">
                                     <div class="text-xl">{{ $emo }}</div>
                                     <div>
-                                        <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($c->date)->format('M j') }} • {{ ucfirst($c->period) }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-300">{{ \Carbon\Carbon::parse($c->date)->format('M j') }} • {{ ucfirst($c->period) }}</div>
                                         <div class="text-sm">{{ $c->note ? \Illuminate\Support\Str::limit($c->note, 80) : 'No note' }}</div>
                                     </div>
                                 </div>
@@ -106,7 +106,7 @@
                     <!-- Trend (sparkline) -->
                     <div class="col-span-1 md:col-span-1 p-4 border rounded flex items-center justify-center">
                         <div class="w-full">
-                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Mood Trend (last 30 days)</h4>
+                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mood Trend (last 30 days)</h4>
                             @php
                                 $points = '';
                                 $width = 220;
@@ -136,7 +136,7 @@
                                 </div>
                                 <div>
                                     <div class="text-2xl font-bold">{{ $avgMood ? number_format($avgMood,1) : '-' }}</div>
-                                    <div class="text-xs text-gray-400">Average mood</div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-300">Average mood</div>
                                 </div>
                             </div>
                         </div>
