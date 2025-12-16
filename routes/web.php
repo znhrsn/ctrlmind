@@ -12,6 +12,7 @@ use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\ConsultantDashboardController;
 use App\Http\Controllers\ConsultantNotificationController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::get('/', function () {
     return view('welcome');
