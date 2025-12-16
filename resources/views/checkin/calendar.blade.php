@@ -39,7 +39,8 @@
             @endphp
             <script>
                 window.CHECKINS = {!! json_encode($checkinsJson) !!};
-                window.TODAY = '{{ $today }}';
+                // Use the client's local date (ISO YYYY-MM-DD) so "today" is based on the user's device/timezone
+                window.TODAY = (new Date()).toISOString().slice(0,10);
             </script>
 
             @if(!empty($openDate))
