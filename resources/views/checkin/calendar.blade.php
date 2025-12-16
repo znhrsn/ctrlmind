@@ -54,7 +54,7 @@
             @endif
 
             {{-- Calendar grid (simple current month) --}}
-            <div x-data="{ selectedDate: null, todayClientStr: (window.TODAY || (new Date()).toISOString().slice(0,10)), todayServerStr: (window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))), todayClientEpoch: new Date((window.TODAY || (new Date()).toISOString().slice(0,10)) + 'T00:00:00').getTime(), todayServerEpoch: new Date((window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))) + 'T00:00:00').getTime(), dateEpoch(date){ return new Date(date + 'T00:00:00').getTime() }, isClickable(date){ return this.dateEpoch(date) === this.todayClientEpoch || this.dateEpoch(date) === this.todayServerEpoch }, isPast(date){ return this.dateEpoch(date) < Math.min(this.todayClientEpoch, this.todayServerEpoch) } }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
+            <div x-data="{ selectedDate: null, todayClientStr: (window.TODAY || (new Date()).toISOString().slice(0,10)), todayServerStr: (window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))), todayClientEpoch: new Date((window.TODAY || (new Date()).toISOString().slice(0,10)) + 'T00:00:00').getTime(), todayServerEpoch: new Date((window.SERVER_TODAY || (window.TODAY || (new Date()).toISOString().slice(0,10))) + 'T00:00:00').getTime(), dateEpoch(date){ return new Date(date + 'T00:00:00').getTime() }, isPast(date){ return this.dateEpoch(date) < Math.min(this.todayClientEpoch, this.todayServerEpoch) }, isClickable(date){ return !this.isPast(date) }, isDateToday(date){ return this.dateEpoch(date) === this.todayClientEpoch || this.dateEpoch(date) === this.todayServerEpoch } }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php
                     $startOfMonth = $displayDate->copy()->startOfMonth();
                     $endOfMonth = $displayDate->copy()->endOfMonth();
@@ -145,7 +145,8 @@
                             <div class="px-4 py-3 space-y-3 min-h-0 overflow-y-auto max-h-[70vh]">
                                 <div class="mb-0">
                                     <span class="text-sm text-gray-700">Period: <strong x-text="period"></strong></span>
-                                    <p class="text-xs text-gray-500">(Automatically detected based on current time — check-ins for past dates are not allowed)</p>
+                                    <p class="text-xs text-gray-500">(Automatically detected based on your device time)</p>
+                                    <p class="text-xs text-gray-500 mt-1" x-show="!isDateToday(date)">Preview only: submissions are allowed only for today's date.</p>
                                 </div>
 
                                 {{-- Emoji mood picker --}}
@@ -217,7 +218,7 @@
 
                                 <div class="flex justify-end gap-2">
                                     <button type="button" @click="open=false; $dispatch('close-checkin')" class="px-3 py-1 border rounded">Cancel</button>
-                                    <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">Save Check-In</button>
+                                    <button type="submit" :disabled="!isDateToday(date)" :class="!isDateToday(date) ? 'px-3 py-1 bg-blue-600 text-white rounded opacity-50 cursor-not-allowed' : 'px-3 py-1 bg-blue-600 text-white rounded'" class="px-3 py-1 bg-blue-600 text-white rounded">Save Check-In</button>
                                 </div>
                             </div>
 
