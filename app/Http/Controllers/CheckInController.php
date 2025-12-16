@@ -32,6 +32,7 @@ class CheckinController extends Controller
             'checkinsByDate' => $checkins,
             'month' => $request->input('month', Carbon::now()->month),
             'year' => $request->input('year', Carbon::now()->year),
+            'openDate' => $request->input('open_date'),
         ]);
     }
 
@@ -46,7 +47,7 @@ class CheckinController extends Controller
         }
 
         $validated = $request->validate([
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'in:morning,afternoon,evening'],
             'mood' => ['nullable', 'integer', 'between:1,5'],
             'energy' => ['nullable', 'integer', 'between:1,5'],
@@ -54,7 +55,7 @@ class CheckinController extends Controller
             'satisfaction' => ['nullable', 'integer', 'between:1,5'],
             'self_kindness' => ['nullable', 'integer', 'between:1,5'],
             'relaxation' => ['nullable', 'integer', 'between:1,5'],
-            'note' => ['nullable', 'string'],
+            'note' => ['nullable', 'string', 'max:280'],
         ]);
 
         $userId = Auth::id();
@@ -96,5 +97,19 @@ class CheckinController extends Controller
         }
 
         return 'evening';
+    }
+
+    /**
+     * Delete a check-in entry. Only the owner may delete.
+     */
+    public function destroy(CheckIn $checkin)
+    {
+        if ($checkin->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $checkin->delete();
+
+        return back()->with('success', 'Check-in deleted.');
     }
 }

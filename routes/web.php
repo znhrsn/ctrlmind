@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
     // Check-in
     Route::get('/checkin', [CheckinController::class, 'index'])->name('checkin.index');
     Route::post('/checkin', [CheckinController::class, 'store'])->name('checkin.store');
+    Route::delete('/checkin/{checkin}', [CheckinController::class, 'destroy'])->name('checkin.destroy');
     Route::get('/checkin/start', [CheckinController::class, 'start'])->name('checkin.start');
 });
 
