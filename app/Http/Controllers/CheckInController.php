@@ -48,7 +48,7 @@ class CheckinController extends Controller
 
         $validated = $request->validate([
             'date' => ['required', 'date'],
-            'period' => ['required', 'in:morning,afternoon,evening'],
+            'period' => ['required', 'in:Morning,Afternoon,Evening'],
             'mood' => ['nullable', 'integer', 'between:1,5'],
             'energy' => ['nullable', 'integer', 'between:1,5'],
             'focus' => ['nullable', 'integer', 'between:1,5'],
@@ -95,14 +95,14 @@ class CheckinController extends Controller
 
         // Morning: 5:00 - 11:59, Afternoon: 12:00 - 16:59, Evening: 17:00 - 4:59
         if ($hour >= 5 && $hour < 12) {
-            return 'morning';
+            return 'Morning';
         }
 
         if ($hour >= 12 && $hour < 17) {
-            return 'afternoon';
+            return 'Afternoon';
         }
 
-        return 'evening';
+        return 'Evening';
     }
 
     /**
