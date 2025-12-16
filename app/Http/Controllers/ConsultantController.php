@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Message;
+use App\Models\JournalEntry;
 
 class ConsultantController extends Controller
 {
@@ -54,7 +55,16 @@ class ConsultantController extends Controller
 
     public function sharedJournals()
     {
-        // TODO: fetch shared journals from a pivot table
-        return view('consultants.shared-journals');
+        $consultantId = auth()->id();
+
+        $journals = JournalEntry::with(['user', 'quote']) // eager-load to show quote/user
+            ->where('shared_with_consultant', true)
+            ->whereHas('user', function ($q) use ($consultantId) {
+                $q->where('consultant_id', $consultantId);
+            })
+            ->latest()
+            ->get();
+
+        return view('consultants.shared_journals', compact('journals'));
     }
 }

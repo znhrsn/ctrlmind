@@ -43,7 +43,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/consultant/shared-journals', [ConsultantController::class, 'sharedJournals'])->name('consultant.shared-journals');
     Route::post('/journal/{id}/archive', [JournalController::class, 'archiveEntry'])
     ->name('journal.archiveEntry');
-
+    // routes/web.php
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/consultants/shared-journals', [\App\Http\Controllers\ConsultantController::class, 'sharedJournals'])
+            ->name('consultants.shared_journals');
+    });
+    Route::post('/journal/{id}/share', [\App\Http\Controllers\JournalController::class, 'share'])
+    ->middleware('auth')
+    ->name('journal.share');
 
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');

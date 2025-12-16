@@ -9,7 +9,7 @@ class JournalEntry extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['user_id', 'reflection'];
+    protected $fillable = ['user_id', 'quote_id', 'title', 'reflection', 'shared_with_consultant'];
 
     /**
      * Relationships
@@ -24,3 +24,4 @@ class JournalEntry extends Model
         return $this->belongsTo(Quote::class);
     }
 }
+

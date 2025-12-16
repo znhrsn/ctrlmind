@@ -100,4 +100,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'consultant_id');
     }
+
+    public function journalEntries()
+    {
+        return $this->hasMany(JournalEntry::class);
+    }
+
 }

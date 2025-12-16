@@ -120,17 +120,16 @@ class JournalController extends Controller
     /* ---------------------------------------------------------
         SHARE / UNSHARE ENTRY
     --------------------------------------------------------- */
+
     public function share($id)
     {
-        $entry = JournalEntry::where('user_id', auth()->id())
-            ->findOrFail($id);
-
+        $entry = JournalEntry::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
         $entry->shared_with_consultant = !$entry->shared_with_consultant;
         $entry->save();
 
-        return redirect()
-            ->route('journal.index')
-            ->with('status', 'Sharing preference updated.');
+        return back()->with('status', $entry->shared_with_consultant
+            ? 'Journal shared with your consultant.'
+            : 'Journal unshared.');
     }
 
     /* ---------------------------------------------------------
