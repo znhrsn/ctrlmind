@@ -81,6 +81,8 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
     // Check-in
+    Route::get('/checkin', [CheckinController::class, 'index'])->name('checkin.index');
+    Route::post('/checkin', [CheckinController::class, 'store'])->name('checkin.store');
     Route::get('/checkin/start', [CheckinController::class, 'start'])->name('checkin.start');
 });
 
