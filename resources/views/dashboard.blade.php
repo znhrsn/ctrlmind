@@ -59,7 +59,7 @@
                             @for($m=5;$m>=1;$m--)
                                 @php $count = $moodCounts[$m] ?? 0; $pct = round(($count/$max)*100); @endphp
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 text-sm text-gray-500 dark:text-gray-300">{{ $emojiMap[$m] }}</div>
+                                    <div class="w-6 text-xl text-gray-500 dark:text-gray-300">{{ $emojiMap[$m] }}</div>
                                     <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
                                         <div class="bg-blue-500 h-3" style="width: {{ $pct }}%"></div>
                                     </div>
@@ -93,10 +93,10 @@
                                     $emo = [1=>'😢',2=>'🙁',3=>'😐',4=>'🙂',5=>'😊'][$c->mood ?? 3];
                                 @endphp
                                 <div class="flex items-start gap-3">
-                                    <div class="text-xl">{{ $emo }}</div>
+                                    <div class="text-2xl">{{ $emo }}</div>
                                     <div>
                                         <div class="text-xs text-gray-500 dark:text-gray-300">{{ \Carbon\Carbon::parse($c->date)->format('M j') }} • {{ ucfirst($c->period) }}</div>
-                                        <div class="text-sm">{{ $c->note ? \Illuminate\Support\Str::limit($c->note, 80) : 'No note' }}</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">{{ $c->note ? \Illuminate\Support\Str::limit($c->note, 80) : 'No note' }}</div>
                                     </div>
                                 </div>
                             @endforeach
