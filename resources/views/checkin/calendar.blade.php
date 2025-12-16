@@ -46,9 +46,14 @@
 
             @if(!empty($openDate))
                 <script>
-                    // Only select the date on load (highlight) — do NOT auto-open the survey modal.
                     document.addEventListener('DOMContentLoaded', function () {
-                        window.dispatchEvent(new CustomEvent('select-date', { detail: { date: '{{ $openDate }}' } }));
+                        @if(!empty($openPeriod))
+                            // Open the modal directly for this date+period (used by dashboard 'View')
+                            window.dispatchEvent(new CustomEvent('open-checkin', { detail: { date: '{{ $openDate }}', period: '{{ $openPeriod }}' } }));
+                        @else
+                            // Only select the date on load (highlight) — do NOT auto-open the survey modal.
+                            window.dispatchEvent(new CustomEvent('select-date', { detail: { date: '{{ $openDate }}' } }));
+                        @endif
                     });
                 </script>
             @endif
@@ -128,7 +133,7 @@
         </div>
 
         {{-- Modal: Check-in form (Alpine driven) --}}
-        <div x-data="{open:false,date:null,period:(function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(),mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null }" @open-checkin.window="(function(){ date = $event.detail.date; period = (function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === 'Evening' }) || items.find(function(c){ return c.period === 'Morning' }); if(found){ period = found.period; existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()"}]}undefined x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
+        <div x-data="{open:false,date:null,period:(function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(),mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null }" @open-checkin.window="(function(){ date = $event.detail.date; period = (function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; if($event.detail && $event.detail.period){ var found = items.find(function(c){ return ( (c.period || '').toLowerCase() === ($event.detail.period || '').toLowerCase() ); }); if(found){ period = ( (found.period || '').toLowerCase() === 'morning' ) ? 'Morning' : 'Evening'; existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } else { period = ( ($event.detail.period || '').toLowerCase() === 'morning' ) ? 'Morning' : 'Evening'; existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; } } else { var found = items.find(function(c){ return (c.period || '').toLowerCase() === 'evening'; }) || items.find(function(c){ return (c.period || '').toLowerCase() === 'morning'; }); if(found){ period = ( (found.period || '').toLowerCase() === 'morning' ) ? 'Morning' : 'Evening'; existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } } open = true; })()"}]}undefined x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
             <template x-if="open">
                 <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div class="bg-white rounded shadow-lg w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">

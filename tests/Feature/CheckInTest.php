@@ -233,6 +233,17 @@ it('doEs not Auto-opEn ModAl for A non-todAy opEn_dAtE pArAM', function () {
     $this->assertStringNotContainsString('open-checkin', $response->getContent());
 });
 
+it('opens the modal when open_period is supplied (dashboard View link)', function () {
+    $user = User::factory()->create();
+
+    $tomorrow = now()->addDay()->toDateString();
+
+    $response = $this->actingAs($user)->get('/checkin?open_date=' . $tomorrow . '&open_period=evening');
+
+    $response->assertOk();
+    $response->assertSee('open-checkin', false);
+});
+
 it('hAs A BAck link thAt rEturns to thE dAshboArd', function () {
     $user = User::factory()->create();
 

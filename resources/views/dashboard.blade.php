@@ -95,7 +95,10 @@
                                 <div class="flex items-start gap-3">
                                     <div class="text-2xl">{{ $emo }}</div>
                                     <div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-300">{{ \Carbon\Carbon::parse($c->date)->format('M j') }} • {{ ucfirst($c->period) }}</div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="text-xs text-gray-500 dark:text-gray-300">{{ \Carbon\Carbon::parse($c->date)->format('M j') }} • {{ ucfirst($c->period) }}</div>
+                                            <a href="{{ route('checkin.index', ['open_date' => $c->date, 'open_period' => $c->period]) }}" class="text-blue-500 text-xs hover:underline">View</a>
+                                        </div>
                                         <div class="text-sm text-gray-600 dark:text-gray-400">{{ $c->note ? \Illuminate\Support\Str::limit($c->note, 80) : 'No note' }}</div>
                                     </div>
                                 </div>

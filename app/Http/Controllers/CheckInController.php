@@ -33,6 +33,7 @@ class CheckinController extends Controller
             'month' => $request->input('month', Carbon::now()->month),
             'year' => $request->input('year', Carbon::now()->year),
             'openDate' => $request->input('open_date'),
+            'openPeriod' => $request->input('open_period'),
             'currentPeriod' => $this->currentPeriod(),
         ]);
     }
@@ -59,11 +60,7 @@ class CheckinController extends Controller
             'note' => ['nullable', 'string', 'max:280'],
         ]);
 
-        // Server-side: only allow creating/updating check-ins for today
-        $submittedDate = Carbon::parse($validated['date'])->startOfDay();
-        if (! $submittedDate->isSameDay(Carbon::today())) {
-            return back()->withErrors(['date' => 'You may only submit a check-in for today.']);
-        }
+
 
         $userId = Auth::id();
 
@@ -94,7 +91,7 @@ class CheckinController extends Controller
     {
         $hour = Carbon::now()->hour;
 
-        // Morning: 5:00 - 11:59, Evening: 17:00 - 4:59
+        // Morning: 5:00 - 11:59, Evening: all other hours
         if ($hour >= 5 && $hour < 12) {
             return 'Morning';
         }

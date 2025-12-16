@@ -43,4 +43,8 @@ it('shows mood trend and recent checkins on dashboard', function () {
     // Daily Check-in section has been moved into the Mood Tracker; ensure the dashboard does not render a separate Daily Check-in block
     $response->assertDontSee('Daily Check-in');
     $response->assertSee("Start Today's Check-in", false);
+
+    // Each recent item should have a View link to open the check-in modal for that date+period
+    $response->assertSee(route('checkin.index', ['open_date' => now()->toDateString(), 'open_period' => 'morning']), false);
+    $response->assertSee(route('checkin.index', ['open_date' => now()->subDays(1)->toDateString(), 'open_period' => 'evening']), false);
 });
