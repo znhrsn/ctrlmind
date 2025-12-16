@@ -46,7 +46,6 @@
                     <div class="col-span-1 md:col-span-1 flex flex-col items-center justify-center p-4 border rounded">
                         <p class="mb-4 text-center text-gray-500">How are you feeling today?</p>
                         <a href="{{ route('checkin.index', ['open_date' => now()->toDateString()]) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start Today's Check-in</a>
-                        <p class="text-xs text-gray-400 mt-3">Or use the Check-in calendar to add reflections (One entry per period)</p>
                     </div>
 
                     <!-- Trend (sparkline) -->
