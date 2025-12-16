@@ -54,7 +54,7 @@
             @endif
 
             {{-- Calendar grid (simple current month) --}}
-            <div x-data="{ selectedDate: null, todayClient: window.TODAY, todayServer: window.SERVER_TODAY }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
+            <div x-data="{ selectedDate: null, todayClient: window.TODAY, todayServer: window.SERVER_TODAY, isClickable(date){ return date === this.todayClient || date === this.todayServer }, isPast(date){ return date < this.todayClient && date < this.todayServer } }" @select-date.window="selectedDate = $event.detail.date" @close-checkin.window="selectedDate = null" class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php
                     $startOfMonth = $displayDate->copy()->startOfMonth();
                     $endOfMonth = $displayDate->copy()->endOfMonth();
@@ -82,7 +82,7 @@
                         $isFuture = $date->gt($today);
                     @endphp
 
-                    <div x-bind:class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400 bg-blue-50' : ( ('{{ $date->toDateString() }}' === todayClient || '{{ $date->toDateString() }}' === todayServer) ? 'bg-white cursor-pointer' : ( ('{{ $date->toDateString() }}' < todayClient && '{{ $date->toDateString() }}' < todayServer) ? 'bg-gray-100 opacity-70 cursor-not-allowed' : 'bg-gray-50 cursor-not-allowed' ) )" class="h-16 p-2 border rounded relative" @click="if ('{{ $date->toDateString() }}' === todayClient || '{{ $date->toDateString() }}' === todayServer) { selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' }) }" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}">
+                    <div x-bind:class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400 bg-blue-50' : ( isClickable('{{ $date->toDateString() }}') ? 'bg-white cursor-pointer' : ( isPast('{{ $date->toDateString() }}') ? 'bg-gray-100 opacity-70 cursor-not-allowed' : 'bg-gray-50 cursor-not-allowed' ) )" class="h-16 p-2 border rounded relative" @click="if (isClickable('{{ $date->toDateString() }}')) { selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' }) }" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}">
                         <div class="text-xs font-medium relative z-10">{{ $date->day }}</div>
 
                         @php
