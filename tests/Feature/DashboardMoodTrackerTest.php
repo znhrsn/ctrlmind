@@ -32,6 +32,8 @@ it('shows mood trend and recent checkins on dashboard', function () {
     $response->assertSee('Mood Trend', false);
     $response->assertSee('Recent Check-ins', false);
     $response->assertSee('Great start', false);
+    // Ensure calendar entries appear in recent checkins summary
+    $response->assertSee('Dec', false);
 
     // Ensure period counts are displayed
     $response->assertSee('Survey Periods', false);

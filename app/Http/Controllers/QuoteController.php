@@ -136,12 +136,26 @@ class QuoteController extends Controller
             ->groupBy('period')
             ->map->count();
 
-        // Recent checkins (last 7 entries)
-        $recentCheckins = \App\Models\CheckIn::where('user_id', $user->id)
+        // Recent checkins: pick the latest entry per date (prefer Evening if present), up to 7 dates
+        $recentDates = \App\Models\CheckIn::where('user_id', $user->id)
             ->orderBy('date', 'desc')
-            ->orderBy('period', 'desc')
+            ->pluck('date')
+            ->unique()
             ->take(7)
-            ->get();
+            ->values();
+
+        $recentCheckins = collect();
+        foreach ($recentDates as $d) {
+            $entry = \App\Models\CheckIn::where('user_id', $user->id)
+                ->where('date', $d)
+                ->orderByRaw("case when period='Evening' then 1 when period='Morning' then 2 else 3 end")
+                ->orderBy('id', 'desc')
+                ->first();
+            if ($entry) {
+                $recentCheckins->push($entry);
+            }
+            if ($recentCheckins->count() >= 7) break;
+        }
 
         return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources', 'moodTrend', 'moodCounts', 'periodCounts', 'recentCheckins'));
     }
