@@ -91,9 +91,9 @@
                         @php
                             $periods = $checkins ? $checkins->pluck('period')->unique()->values()->all() : [];
                             $periodMap = [
-                                'morning' => ['label' => 'M', 'title' => 'Morning', 'color' => 'bg-yellow-100'],
-                                'afternoon' => ['label' => 'A', 'title' => 'Afternoon', 'color' => 'bg-orange-100'],
-                                'evening' => ['label' => 'E', 'title' => 'Evening', 'color' => 'bg-slate-200'],
+                                'Morning' => ['label' => 'M', 'title' => 'Morning', 'color' => 'bg-yellow-100'],
+                                'Afternoon' => ['label' => 'A', 'title' => 'Afternoon', 'color' => 'bg-orange-100'],
+                                'Evening' => ['label' => 'E', 'title' => 'Evening', 'color' => 'bg-slate-200'],
                             ];
                         @endphp
 
