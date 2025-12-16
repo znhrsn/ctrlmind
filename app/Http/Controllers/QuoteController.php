@@ -98,7 +98,45 @@ class QuoteController extends Controller
         // Featured resources
         $featuredResources = Resource::where('is_featured', true)->take(3)->get();
 
-        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources'));
+        // Mood tracker: last 30 days
+        $user = auth()->user();
+        $rangeDays = 30;
+        $start = now()->subDays($rangeDays - 1)->startOfDay();
+
+        $checkins = \App\Models\CheckIn::where('user_id', $user->id)
+            ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
+            ->orderBy('date')
+            ->get()
+            ->groupBy('date');
+
+        $moodTrend = [];
+        for ($d = $start->copy(); $d->lte(now()); $d->addDay()) {
+            $dateKey = $d->toDateString();
+            $items = $checkins[$dateKey] ?? collect();
+            if ($items->count()) {
+                $avg = (int) round($items->avg('mood'));
+            } else {
+                $avg = null; // no data
+            }
+            $moodTrend[] = ['date' => $dateKey, 'avg' => $avg];
+        }
+
+        // Counts by mood value in the range
+        $moodCounts = \App\Models\CheckIn::where('user_id', $user->id)
+            ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
+            ->whereNotNull('mood')
+            ->get()
+            ->groupBy('mood')
+            ->map->count();
+
+        // Recent checkins (last 7 entries)
+        $recentCheckins = \App\Models\CheckIn::where('user_id', $user->id)
+            ->orderBy('date', 'desc')
+            ->orderBy('period', 'desc')
+            ->take(7)
+            ->get();
+
+        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources', 'moodTrend', 'moodCounts', 'recentCheckins'));
     }
 
     // Redirect to journal creation with quote
