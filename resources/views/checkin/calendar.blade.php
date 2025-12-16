@@ -9,7 +9,7 @@
         @endif
 
         <div class="mb-6 flex justify-end">
-            <a href="{{ route('checkin.start') }}" class="text-sm text-gray-500">Back</a>
+            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500">Back</a>
         </div>
 
         <div class="bg-white border rounded shadow-sm p-4 max-w-xl mx-auto">

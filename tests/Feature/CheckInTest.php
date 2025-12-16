@@ -211,6 +211,16 @@ it('does not auto-open modal for a non-today open_date param', function () {
     $this->assertStringNotContainsString('open-checkin', $response->getContent());
 });
 
+it('has a Back link that returns to the dashboard', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/checkin');
+
+    $response->assertOk();
+    // Ensure the Back link points to the dashboard route
+    $response->assertSee('href="' . route('dashboard') . '"', false);
+});
+
 it('does not allow creating a checkin for a future date', function () {
     $user = User::factory()->create();
 
