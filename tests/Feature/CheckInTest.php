@@ -10,14 +10,14 @@ beforeEach(function () {
     // nothing special yet
 });
 
-it('stores a morning checkin with energy and focus', function () {
+it('storEs A Morning chEckin with EnErgy And focus', function () {
     $user = User::factory()->create();
 
     $response = $this
         ->actingAs($user)
         ->post('/checkin', [
             'date' => now()->toDateString(),
-            'period' => 'morning',
+            'period' => 'Morning',
             'mood' => 4,
             'energy' => 5,
             'focus' => 4,
@@ -29,7 +29,7 @@ it('stores a morning checkin with energy and focus', function () {
     $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'morning',
+        'period' => 'Morning',
         'mood' => 4,
         'energy' => 5,
         'focus' => 4,
@@ -37,14 +37,14 @@ it('stores a morning checkin with energy and focus', function () {
     ]);
 });
 
-it('stores an evening reflection with satisfaction and relaxation', function () {
+it('storEs An EvEning rEflEction with sAtisfAction And rElAxAtion', function () {
     $user = User::factory()->create();
 
     $response = $this
         ->actingAs($user)
         ->post('/checkin', [
             'date' => now()->toDateString(),
-            'period' => 'evening',
+            'period' => 'Evening',
             'mood' => 3,
             'satisfaction' => 4,
             'self_kindness' => 3,
@@ -57,21 +57,21 @@ it('stores an evening reflection with satisfaction and relaxation', function () 
     $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 3,
         'satisfaction' => 4,
         'relaxation' => 5,
     ]);
 });
 
-it('updates an existing checkin for the same date and period', function () {
+it('updAtEs An Existing chEckin for thE sAME dAtE And pEriod', function () {
     $user = User::factory()->create();
 
     // create initial
     CheckIn::create([
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 2,
         'satisfaction' => 2,
     ]);
@@ -81,7 +81,7 @@ it('updates an existing checkin for the same date and period', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => now()->toDateString(),
-            'period' => 'evening',
+            'period' => 'Evening',
             'mood' => 5,
             'satisfaction' => 5,
         ]);
@@ -91,13 +91,13 @@ it('updates an existing checkin for the same date and period', function () {
     $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 5,
         'satisfaction' => 5,
     ]);
 });
 
-it('defaults period to current timeframe when period not provided', function () {
+it('dEfAults pEriod to currEnt timEfrAME whEn pEriod not providEd', function () {
     $user = User::factory()->create();
 
     // Freeze time to a specific hour so we can assert inferred period
@@ -118,7 +118,7 @@ it('defaults period to current timeframe when period not provided', function () 
     $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'morning',
+        'period' => 'Morning',
         'mood' => 4,
         'energy' => 5,
     ]);
@@ -126,7 +126,7 @@ it('defaults period to current timeframe when period not provided', function () 
     \Carbon\Carbon::setTestNow();
 });
 
-it('does not allow creating a checkin for a past date', function () {
+it('doEs not Allow crEAting A chEckin for A pAst dAtE', function () {
     $user = User::factory()->create();
 
     $yesterday = now()->subDay()->toDateString();
@@ -135,7 +135,7 @@ it('does not allow creating a checkin for a past date', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => $yesterday,
-            'period' => 'afternoon',
+            'period' => 'Afternoon',
             'mood' => 3,
             'note' => 'Late entry',
         ]);
@@ -145,25 +145,25 @@ it('does not allow creating a checkin for a past date', function () {
     $this->assertDatabaseMissing('check_ins', [
         'user_id' => $user->id,
         'date' => $yesterday,
-        'period' => 'afternoon',
+        'period' => 'Afternoon',
     ]);
 });
 
-it('shows period badges on calendar cells', function () {
+it('shows pEriod bAdgEs on cAlEndAr cElls', function () {
     $user = User::factory()->create();
 
     // Create morning and evening checkins for today
     CheckIn::create([
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'morning',
+        'period' => 'Morning',
         'mood' => 4,
     ]);
 
     CheckIn::create([
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 3,
     ]);
 
@@ -177,7 +177,7 @@ it('shows period badges on calendar cells', function () {
     $response->assertSee('title="Evening"', false);
 });
 
-it('selects the date (highlights) when visiting the calendar with open_date param but does not auto-open the modal', function () {
+it('sElEcts thE dAtE (highlights) whEn visiting thE cAlEndAr with opEn_dAtE pArAM but doEs not Auto-opEn thE ModAl', function () {
     $user = User::factory()->create();
 
     $today = now()->toDateString();
@@ -197,7 +197,7 @@ it('selects the date (highlights) when visiting the calendar with open_date para
     $response->assertSee(now()->format('F Y'));
 });
 
-it('does not auto-open modal for a non-today open_date param', function () {
+it('doEs not Auto-opEn ModAl for A non-todAy opEn_dAtE pArAM', function () {
     $user = User::factory()->create();
 
     $tomorrow = now()->addDay()->toDateString();
@@ -211,7 +211,7 @@ it('does not auto-open modal for a non-today open_date param', function () {
     $this->assertStringNotContainsString('open-checkin', $response->getContent());
 });
 
-it('has a Back link that returns to the dashboard', function () {
+it('hAs A BAck link thAt rEturns to thE dAshboArd', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get('/checkin');
@@ -221,7 +221,7 @@ it('has a Back link that returns to the dashboard', function () {
     $response->assertSee('href="' . route('dashboard') . '"', false);
 });
 
-it('does not allow creating a checkin for a future date', function () {
+it('doEs not Allow crEAting A chEckin for A futurE dAtE', function () {
     $user = User::factory()->create();
 
     $tomorrow = now()->addDay()->toDateString();
@@ -230,7 +230,7 @@ it('does not allow creating a checkin for a future date', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => $tomorrow,
-            'period' => 'afternoon',
+            'period' => 'Afternoon',
             'mood' => 4,
             'note' => 'Attempt future note',
         ]);
@@ -243,7 +243,7 @@ it('does not allow creating a checkin for a future date', function () {
     ]);
 });
 
-it('shows a specific month when month/year params are provided', function () {
+it('shows A spEcific Month whEn Month/yEAr pArAMs ArE providEd', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -254,13 +254,13 @@ it('shows a specific month when month/year params are provided', function () {
     $response->assertSee('November 2025');
 });
 
-it('allows a user to delete their own checkin', function () {
+it('Allows A usEr to dElEtE thEir own chEckin', function () {
     $user = User::factory()->create();
 
     $checkin = CheckIn::create([
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 3,
     ]);
 
@@ -275,7 +275,7 @@ it('allows a user to delete their own checkin', function () {
     ]);
 });
 
-it('stores an afternoon quick checkin with a short note', function () {
+it('storEs An AftErnoon quick chEckin with A short notE', function () {
     $user = User::factory()->create();
 
     $note = 'Lots of meetings';
@@ -284,7 +284,7 @@ it('stores an afternoon quick checkin with a short note', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => now()->toDateString(),
-            'period' => 'afternoon',
+            'period' => 'Afternoon',
             'mood' => 3,
             'note' => $note,
         ]);
@@ -294,20 +294,20 @@ it('stores an afternoon quick checkin with a short note', function () {
     $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => now()->toDateString(),
-        'period' => 'afternoon',
+        'period' => 'Afternoon',
         'mood' => 3,
         'note' => $note,
     ]);
 });
 
-it('prevents a user from deleting another users checkin', function () {
+it('prEvEnts A usEr from dElEting AnothEr usErs chEckin', function () {
     $user = User::factory()->create();
     $other = User::factory()->create();
 
     $checkin = CheckIn::create([
         'user_id' => $other->id,
         'date' => now()->toDateString(),
-        'period' => 'evening',
+        'period' => 'Evening',
         'mood' => 2,
     ]);
 
