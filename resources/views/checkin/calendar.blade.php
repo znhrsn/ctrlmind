@@ -42,18 +42,17 @@
                 window.TODAY = '{{ $today }}';
             </script>
 
-            @if(!empty($openDate) && $openDate === $today)
+            @if(!empty($openDate))
                 <script>
-                    // Dispatch the open-checkin event after the DOM loads so Alpine can respond
+                    // Only select the date on load (highlight) — do NOT auto-open the survey modal.
                     document.addEventListener('DOMContentLoaded', function () {
-                        window.dispatchEvent(new CustomEvent('open-checkin', { detail: { date: '{{ $openDate }}' } }));
+                        window.dispatchEvent(new CustomEvent('select-date', { detail: { date: '{{ $openDate }}' } }));
                     });
                 </script>
             @endif
 
             {{-- Calendar grid (simple current month) --}}
-            <div x-data="{selectedDate:null}"
-            <div @open-checkin.window="if($event.detail.date === window.TODAY) selectedDate = $event.detail.date" 
+            <div x-data="{selectedDate:null}"                 @select-date.window="selectedDate = $event.detail.date"            <div @open-checkin.window="if($event.detail.date === window.TODAY) selectedDate = $event.detail.date" 
                  @close-checkin.window="selectedDate = null"
                  class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php

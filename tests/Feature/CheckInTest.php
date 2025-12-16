@@ -177,7 +177,7 @@ it('shows period badges on calendar cells', function () {
     $response->assertSee('title="Evening"', false);
 });
 
-it('opens the check-in modal when visiting the calendar with open_date param', function () {
+it('selects the date (highlights) when visiting the calendar with open_date param but does not auto-open the modal', function () {
     $user = User::factory()->create();
 
     $today = now()->toDateString();
@@ -187,8 +187,9 @@ it('opens the check-in modal when visiting the calendar with open_date param', f
         ->get('/checkin?open_date=' . $today);
 
     $response->assertOk();
-    // Check that the page contains the script that dispatches the open-checkin event for today
-    $response->assertSee("open-checkin", false);
+    // The page should dispatch a select-date event to highlight the date, but should NOT auto-open the modal
+    $response->assertSee("select-date", false);
+    $this->assertStringNotContainsString('open-checkin', $response->getContent());
     $response->assertSee($today, false);
 
     // Ensure month/year header is present and centered id exists
