@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Quote;
+use App\Models\Resource; 
+use Illuminate\Support\Facades\Cache;
+
+class QuoteController extends Controller
+{
+    // Show all quotes saved by the current user
+    public function index()
+    {
+        $user = auth()->user();
+
+        // Use relationship instead of raw UserQuote
+        $userQuotes = $user->savedQuotes()
+            ->withPivot('is_pinned')
+            ->orderByDesc('pivot_is_pinned')   // pinned first
+            ->orderBy('pivot_created_at', 'desc') // then newest saved
+            ->get();
+
+        return view('quotes.index', compact('userQuotes'));
+    }
+
+    // Save/unsave toggle
+    public function toggle(Request $request)
+    {
+        $quoteId = $request->input('quote_id');
+        $user = auth()->user();
+
+        if ($user->savedQuotes()->where('quote_id', $quoteId)->exists()) {
+            $user->savedQuotes()->detach($quoteId);
+            return redirect()->back()->with('status', 'Quote Unsaved');
+        } else {
+            $user->savedQuotes()->attach($quoteId);
+            return redirect()->back()->with('status', 'Quote Saved');
+        }
+    }
+
+    // Admin uploads a new quote
+    public function store(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string',
+            'author' => 'nullable|string',
+        ]);
+
+        Quote::create([
+            'text' => $request->text,
+            'author' => $request->author,
+        ]);
+
+        return redirect()->back()->with('success', 'Quote added!');
+    }
+
+    // Pin/unpin quotes (max 3 per user)
+    public function pin(Request $request)
+    {
+        $quoteId = $request->input('quote_id');
+        $user = auth()->user();
+
+        $pinnedCount = $user->savedQuotes()->wherePivot('is_pinned', true)->count();
+        $alreadyPinned = $user->savedQuotes()
+            ->wherePivot('is_pinned', true)
+            ->where('quote_id', $quoteId)
+            ->exists();
+
+        if ($alreadyPinned) {
+            $user->savedQuotes()->updateExistingPivot($quoteId, ['is_pinned' => false]);
+            return redirect()->back()->with('status', 'Quote Unpinned');
+        }
+
+        if ($pinnedCount >= 3) {
+            return redirect()->back()->with('status', 'You can only pin 3 quotes. Unpin one first.');
+        }
+
+        $user->savedQuotes()->updateExistingPivot($quoteId, ['is_pinned' => true]);
+        return redirect()->back()->with('status', 'Quote Pinned');
+    }
+
+    // Dashboard
+    public function dashboard()
+    {
+        $today = now()->toDateString();
+
+        // Cache one random quote for the whole day
+        $quote = Cache::remember("quote_of_the_day_{$today}", now()->addDay(), function () {
+            return Quote::inRandomOrder()->first();
+        });
+
+        // ✅ Define savedQuoteIds properly
+        $savedQuoteIds = auth()->user()
+            ->savedQuotes()   // relationship from User model
+            ->pluck('quote_id'); // or ->pluck('quotes.id') depending on your schema
+
+        // Featured resources
+        $featuredResources = Resource::where('is_featured', true)->take(3)->get();
+
+        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources'));
+    }
+
+    // Redirect to journal creation with quote
+    public function redirectToJournal(Request $request)
+    {
+        $quoteId = $request->quote_id;
+        return redirect()->route('journal.create', ['quote_id' => $quoteId]);
+    }
+}
