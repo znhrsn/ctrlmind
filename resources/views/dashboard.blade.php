@@ -48,51 +48,14 @@
                         <a href="{{ route('checkin.index', ['open_date' => now()->toDateString()]) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start Today's Check-in</a>
                     </div>
 
-                    <!-- Trend (sparkline) -->
-                    <div class="col-span-1 md:col-span-1 p-4 border rounded">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Mood Trend (last 30 days)</h4>
-                        @php
-                            $points = '';
-                            $width = 220;
-                            $height = 48;
-                            $n = count($moodTrend ?? []);
-                            $step = $n > 1 ? $width / ($n - 1) : $width;
-                            $i = 0;
-                            foreach($moodTrend as $p){
-                                $x = $i * $step;
-                                if (is_null($p['avg'])) {
-                                    $y = $height; // bottom
-                                } else {
-                                    $y = $height - (($p['avg'] - 1) / 4) * $height; // map 1..5
-                                }
-                                $points .= round($x,2).",".round($y,2).' ';
-                                $i++;
-                            }
-
-                            // compute average mood value for the period (ignoring nulls)
-                            $avgMood = collect($moodTrend)->filter(fn($it)=>!is_null($it['avg']))->avg('avg') ?: null;
-                        @endphp
-                        <div class="flex items-center gap-4">
-                            <div>
-                                <svg width="{{ $width }}" height="{{ $height }}" class="block">
-                                    <polyline fill="none" stroke="#2563EB" stroke-width="2" points="{{ trim($points) }}" />
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold">{{ $avgMood ? number_format($avgMood,1) : '-' }}</div>
-                                <div class="text-xs text-gray-400">Average mood</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Distribution & Recent -->
-                    <div class="col-span-1 md:col-span-1 p-4 border rounded">
+                    <!-- Distribution & Recent (center column) -->
+                    <div class="col-span-1 md:col-span-1 p-4 border rounded flex flex-col items-center justify-center">
                         <h4 class="text-sm font-semibold text-gray-700 mb-2">Mood Distribution (30d)</h4>
                         @php
                             $max = max([$moodCounts->max() ?? 0,1]);
                             $emojiMap = [1=>'😢',2=>'🙁',3=>'😐',4=>'🙂',5=>'😊'];
                         @endphp
-                        <div class="space-y-2 mb-4">
+                        <div class="space-y-2 mb-4 w-full max-w-xs">
                             @for($m=5;$m>=1;$m--)
                                 @php $count = $moodCounts[$m] ?? 0; $pct = round(($count/$max)*100); @endphp
                                 <div class="flex items-center gap-2">
@@ -110,7 +73,7 @@
                             $periodMap = ['morning'=>'🌞 Morning','afternoon'=>'🌤 Afternoon','evening'=>'🌙 Evening'];
                             $pmax = max([$periodCounts->max() ?? 0,1]);
                         @endphp
-                        <div class="space-y-2 mb-4">
+                        <div class="space-y-2 mb-4 w-full max-w-xs">
                             @foreach(['morning','afternoon','evening'] as $p)
                                 @php $count = $periodCounts[$p] ?? 0; $pct = round(($count/$pmax)*100); @endphp
                                 <div class="flex items-center gap-2">
@@ -124,7 +87,7 @@
                         </div>
 
                         <h5 class="text-sm font-semibold text-gray-700 mb-2">Recent Check-ins</h5>
-                        <div class="space-y-2 text-sm">
+                        <div class="space-y-2 text-sm w-full max-w-xs">
                             @foreach($recentCheckins as $c)
                                 @php
                                     $emo = [1=>'😢',2=>'🙁',3=>'😐',4=>'🙂',5=>'😊'][$c->mood ?? 3];
@@ -137,6 +100,45 @@
                                     </div>
                                 </div>
                             @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Trend (sparkline) -->
+                    <div class="col-span-1 md:col-span-1 p-4 border rounded flex items-center justify-center">
+                        <div class="w-full">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Mood Trend (last 30 days)</h4>
+                            @php
+                                $points = '';
+                                $width = 220;
+                                $height = 48;
+                                $n = count($moodTrend ?? []);
+                                $step = $n > 1 ? $width / ($n - 1) : $width;
+                                $i = 0;
+                                foreach($moodTrend as $p){
+                                    $x = $i * $step;
+                                    if (is_null($p['avg'])) {
+                                        $y = $height; // bottom
+                                    } else {
+                                        $y = $height - (($p['avg'] - 1) / 4) * $height; // map 1..5
+                                    }
+                                    $points .= round($x,2).",".round($y,2).' ';
+                                    $i++;
+                                }
+
+                                // compute average mood value for the period (ignoring nulls)
+                                $avgMood = collect($moodTrend)->filter(fn($it)=>!is_null($it['avg']))->avg('avg') ?: null;
+                            @endphp
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <svg width="{{ $width }}" height="{{ $height }}" class="block">
+                                        <polyline fill="none" stroke="#2563EB" stroke-width="2" points="{{ trim($points) }}" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold">{{ $avgMood ? number_format($avgMood,1) : '-' }}</div>
+                                    <div class="text-xs text-gray-400">Average mood</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
