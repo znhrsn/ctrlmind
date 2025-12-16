@@ -32,10 +32,12 @@ it('shows mood trend and recent checkins on dashboard', function () {
     $response->assertSee('Mood Trend', false);
     $response->assertSee('Recent Check-ins', false);
     $response->assertSee('Great start', false);
-    // Ensure calendar entries appear in recent checkins summary
-    $response->assertSee('Dec', false);
 
-    // Ensure period counts are displayed
+    // Ensure calendar entries appear in recent checkins summary (both entries should show)
+    $response->assertSee('Great start', false);
+    $response->assertSee('Okay', false);
+
+    // Ensure period counts are displayed and normalized keys exist
     $response->assertSee('Survey Periods', false);
     $response->assertSee('Morning', false);
     $response->assertSee('Evening', false);
@@ -47,4 +49,13 @@ it('shows mood trend and recent checkins on dashboard', function () {
     // Each recent item should have a View link to open the check-in modal for that date+period
     $response->assertSee(route('checkin.index', ['open_date' => now()->toDateString(), 'open_period' => 'morning']), false);
     $response->assertSee(route('checkin.index', ['open_date' => now()->subDays(1)->toDateString(), 'open_period' => 'evening']), false);
+
+    // If multiple entries exist on the same date, show them individually in the recent list
+    $user2 = User::factory()->create();
+    CheckIn::create(['user_id' => $user2->id, 'date' => now()->toDateString(), 'period' => 'Morning', 'mood' => 2, 'note' => 'AM note']);
+    CheckIn::create(['user_id' => $user2->id, 'date' => now()->toDateString(), 'period' => 'Evening', 'mood' => 4, 'note' => 'PM note']);
+
+    $response2 = $this->actingAs($user2)->get('/dashboard');
+    $response2->assertSee('AM note', false);
+    $response2->assertSee('PM note', false);
 });

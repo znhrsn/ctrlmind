@@ -121,41 +121,26 @@ class QuoteController extends Controller
             $moodTrend[] = ['date' => $dateKey, 'avg' => $avg];
         }
 
-        // Counts by mood value in the range
-        $moodCounts = \App\Models\CheckIn::where('user_id', $user->id)
+        // Counts by mood value in the range (normalize to what's present in DB)
+        $rangeCheckins = \App\Models\CheckIn::where('user_id', $user->id)
             ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
-            ->whereNotNull('mood')
-            ->get()
-            ->groupBy('mood')
-            ->map->count();
+            ->get();
 
-        // Counts by period (morning/afternoon/evening)
-        $periodCounts = \App\Models\CheckIn::where('user_id', $user->id)
-            ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
-            ->get()
-            ->groupBy('period')
-            ->map->count();
+        $moodCounts = $rangeCheckins->whereNotNull('mood')->groupBy('mood')->map->count();
 
-        // Recent checkins: pick the latest entry per date (prefer Evening if present), up to 7 dates
-        $recentDates = \App\Models\CheckIn::where('user_id', $user->id)
+        // Counts by period (normalize to lowercase keys so view can read ['morning','evening'])
+        $periodCounts = $rangeCheckins->groupBy(function($c){ return strtolower(trim($c->period ?? '')); })->map->count();
+
+        // Ensure keys exist for morning/evening so the view always has a count for them
+        // ensure at least morning/evening keys exist with zero defaults
+        $periodCounts = collect(['morning' => 0, 'evening' => 0])->merge($periodCounts);
+
+        // Recent checkins: show latest individual entries (not collapsed to one-per-date), up to 7 records
+        $recentCheckins = \App\Models\CheckIn::where('user_id', $user->id)
             ->orderBy('date', 'desc')
-            ->pluck('date')
-            ->unique()
+            ->orderBy('id', 'desc')
             ->take(7)
-            ->values();
-
-        $recentCheckins = collect();
-        foreach ($recentDates as $d) {
-            $entry = \App\Models\CheckIn::where('user_id', $user->id)
-                ->where('date', $d)
-                ->orderByRaw("case when period='Evening' then 1 when period='Morning' then 2 else 3 end")
-                ->orderBy('id', 'desc')
-                ->first();
-            if ($entry) {
-                $recentCheckins->push($entry);
-            }
-            if ($recentCheckins->count() >= 7) break;
-        }
+            ->get();
 
         return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources', 'moodTrend', 'moodCounts', 'periodCounts', 'recentCheckins'));
     }
