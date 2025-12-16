@@ -37,11 +37,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/journal', [JournalController::class, 'store'])->name('journal.store');
     Route::get('/journal/{id}/edit', [JournalController::class, 'edit'])->name('journal.edit');
     Route::put('/journal/{id}', [JournalController::class, 'update'])->name('journal.update');
-    Route::post('/journal/{id}/archive', [JournalController::class, 'archiveEntry'])->name('journal.archive');
     Route::post('/journal/{id}/restore', [JournalController::class, 'restore'])->name('journal.restore');
     Route::post('/journal/{id}/share', [JournalController::class, 'share'])->name('journal.share');
     Route::get('/journal/archived', [JournalController::class, 'showArchived'])->name('journal.archived');
     Route::get('/consultant/shared-journals', [ConsultantController::class, 'sharedJournals'])->name('consultant.shared-journals');
+    Route::post('/journal/{id}/archive', [JournalController::class, 'archiveEntry'])
+    ->name('journal.archiveEntry');
+
 
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
