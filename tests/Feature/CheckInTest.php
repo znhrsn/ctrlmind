@@ -126,7 +126,7 @@ it('dEfAults pEriod to currEnt timEfrAME whEn pEriod not providEd', function () 
     \Carbon\Carbon::setTestNow();
 });
 
-it('doEs not Allow crEAting A chEckin for A pAst dAtE', function () {
+it('allows creating a checkin for a past date', function () {
     $user = User::factory()->create();
 
     $yesterday = now()->subDay()->toDateString();
@@ -135,17 +135,18 @@ it('doEs not Allow crEAting A chEckin for A pAst dAtE', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => $yesterday,
-            'period' => 'Morning',
-            'mood' => 3,
-            'note' => 'Late entry',
+            'period' => 'Evening',
+            'mood' => 4,
+            'note' => 'Late entry from evening',
         ]);
 
-    $response->assertSessionHasErrors();
+    $response->assertSessionHas('success');
 
-    $this->assertDatabaseMissing('check_ins', [
+    $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => $yesterday,
-        'period' => 'Morning',
+        'period' => 'Evening',
+        'mood' => 4,
     ]);
 });
 
@@ -175,6 +176,27 @@ it('shows pEriod bAdgEs on cAlEndAr cElls', function () {
     // Assert that Morning and Evening badges appear in the rendered HTML
     $response->assertSee('title="Morning"', false);
     $response->assertSee('title="Evening"', false);
+});
+
+it('shows emoji and period badge for past evening entry', function () {
+    $user = User::factory()->create();
+
+    $yesterday = now()->subDay()->toDateString();
+
+    CheckIn::create([
+        'user_id' => $user->id,
+        'date' => $yesterday,
+        'period' => 'Evening',
+        'mood' => 5,
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get('/checkin');
+
+    $response->assertOk();
+    $response->assertSee('title="Evening"', false);
+    $response->assertSee('😊', false);
 });
 
 it('sElEcts thE dAtE (highlights) whEn visiting thE cAlEndAr with opEn_dAtE pArAM but doEs not Auto-opEn thE ModAl', function () {
@@ -221,7 +243,7 @@ it('hAs A BAck link thAt rEturns to thE dAshboArd', function () {
     $response->assertSee('href="' . route('dashboard') . '"', false);
 });
 
-it('doEs not Allow crEAting A chEckin for A futurE dAtE', function () {
+it('allows creating a checkin for a future date', function () {
     $user = User::factory()->create();
 
     $tomorrow = now()->addDay()->toDateString();
@@ -235,9 +257,9 @@ it('doEs not Allow crEAting A chEckin for A futurE dAtE', function () {
             'note' => 'Attempt future note',
         ]);
 
-    $response->assertSessionHasErrors('date');
+    $response->assertSessionHas('success');
 
-    $this->assertDatabaseMissing('check_ins', [
+    $this->assertDatabaseHas('check_ins', [
         'user_id' => $user->id,
         'date' => $tomorrow,
     ]);

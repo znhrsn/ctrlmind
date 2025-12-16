@@ -70,7 +70,9 @@
                         $checkins = $checkinsByDate[$key] ?? null;
                         $badge = null;
                         if ($checkins && $checkins->first()) {
-                            $m = $checkins->first()->mood;
+                            // prefer Evening entry's emoji if present, otherwise use the first entry
+                            $emojiEntry = $checkins->firstWhere('period', 'Evening') ?? $checkins->first();
+                            $m = $emojiEntry->mood ?? null;
                             $badge = $m;
                         }
                     @endphp
@@ -126,7 +128,7 @@
         </div>
 
         {{-- Modal: Check-in form (Alpine driven) --}}
-        <div x-data="{open:false,date:null,period:(function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(),mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null }" @open-checkin.window="(function(){ date = $event.detail.date; period = (function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()"}]}undefined x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
+        <div x-data="{open:false,date:null,period:(function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(),mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null }" @open-checkin.window="(function(){ date = $event.detail.date; period = (function(){ let h = new Date().getHours(); if(h >= 5 && h < 12) return 'Morning'; return 'Evening'; })(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === 'Evening' }) || items.find(function(c){ return c.period === 'Morning' }); if(found){ period = found.period; existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()"}]}undefined x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
             <template x-if="open">
                 <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div class="bg-white rounded shadow-lg w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
@@ -144,9 +146,14 @@
 
                             <div class="px-4 py-3 space-y-3 min-h-0 overflow-y-auto max-h-[70vh]">
                                 <div class="mb-0">
-                                    <span class="text-sm text-gray-700">Period: <strong x-text="period"></strong></span>
-                                    <p class="text-xs text-gray-500">(Automatically detected based on your device time)</p>
-                                    <p class="text-xs text-gray-500 mt-1" x-show="!isDateToday(date)">Preview only: submissions are allowed only for today's date.</p>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-sm text-gray-700">Period: <strong x-text="period"></strong></div>
+                                        <div class="flex gap-1">
+                                            <button type="button" @click="(function(){ period='Morning'; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === 'Morning' }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } else { existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; } })()" :class="period=='Morning' ? 'px-2 py-1 bg-yellow-100 rounded' : 'px-2 py-1 border rounded'">Morning</button>
+                                            <button type="button" @click="(function(){ period='Evening'; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === 'Evening' }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } else { existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; } })()" :class="period=='Evening' ? 'px-2 py-1 bg-blue-100 rounded' : 'px-2 py-1 border rounded'">Evening</button>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500">(Automatically detected based on your device time; you can change it to match the entry)</p>
                                 </div>
 
                                 {{-- Emoji mood picker --}}
@@ -218,7 +225,7 @@
 
                                 <div class="flex justify-end gap-2">
                                     <button type="button" @click="open=false; $dispatch('close-checkin')" class="px-3 py-1 border rounded">Cancel</button>
-                                    <button type="submit" :disabled="!isDateToday(date)" :class="!isDateToday(date) ? 'px-3 py-1 bg-blue-600 text-white rounded opacity-50 cursor-not-allowed' : 'px-3 py-1 bg-blue-600 text-white rounded'" class="px-3 py-1 bg-blue-600 text-white rounded">Save Check-In</button>
+                                    <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">Save Check-In</button>
                                 </div>
                             </div>
 
