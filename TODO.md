@@ -1,0 +1,16 @@
+# TODO: Change all e,a,m to E,A,M in CheckInTest.php test descriptions
+
+- [x] Edit test description 1: 'stores a morning checkin with energy and focus' -> 'storEs A Morning chEckin with EnErgy And focus'
+- [x] Edit test description 2: 'stores an evening reflection with satisfaction and relaxation' -> 'storEs An EvEning rEflEction with sAtisfAction And rElAxAtion'
+- [x] Edit test description 3: 'updates an existing checkin for the same date and period' -> 'updAtEs An Existing chEckin for thE sAME dAtE And pEriod'
+- [x] Edit test description 4: 'defaults period to current timeframe when period not provided' -> 'dEfAults pEriod to currEnt timEfrAME whEn pEriod not providEd'
+- [x] Edit test description 5: 'does not allow creating a checkin for a past date' -> 'doEs not Allow crEAting A chEckin for A pAst dAtE'
+- [x] Edit test description 6: 'shows period badges on calendar cells' -> 'shows pEriod bAdgEs on cAlEndAr cElls'
+- [x] Edit test description 7: 'selects the date (highlights) when visiting the calendar with open_date param but does not auto-open the modal' -> 'sElEcts thE dAtE (highlights) whEn visiting thE cAlEndAr with opEn_dAtE pArAM but doEs not Auto-opEn thE ModAl'
+- [x] Edit test description 8: 'does not auto-open modal for a non-today open_date param' -> 'doEs not Auto-opEn ModAl for A non-todAy opEn_dAtE pArAM'
+- [x] Edit test description 9: 'has a Back link that returns to the dashboard' -> 'hAs A BAck link thAt rEturns to thE dAshboArd'
+- [x] Edit test description 10: 'does not allow creating a checkin for a future date' -> 'doEs not Allow crEAting A chEckin for A futurE dAtE'
+- [x] Edit test description 11: 'shows a specific month when month/year params are provided' -> 'shows A spEcific Month whEn Month/yEAr pArAMs ArE providEd'
+- [x] Edit test description 12: 'allows a user to delete their own checkin' -> 'Allows A usEr to dElEtE thEir own chEckin'
+- [x] Edit test description 13: 'stores an afternoon quick checkin with a short note' -> 'storEs An AftErnoon quick chEckin with A short notE'
+- [x] Edit test description 14: 'prevents a user from deleting another users checkin' -> 'prEvEnts A usEr from dElEting AnothEr usErs chEckin'

@@ -9,7 +9,7 @@
         @endif
 
         <div class="mb-6 flex justify-end">
-            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500">Back</a>
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">Back</a>
         </div>
 
         <div class="bg-white border rounded shadow-sm p-4 max-w-xl mx-auto">
@@ -86,7 +86,7 @@
                          class="h-16 p-2 border rounded relative"
                          @if($isToday) @click="selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' })" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}" @endif
                     >
-                        <div class="text-xs font-medium">{{ $date->day }}</div>
+                        <div class="text-xs font-medium relative z-10">{{ $date->day }}</div>
 
                         @php
                             $periods = $checkins ? $checkins->pluck('period')->unique()->values()->all() : [];
@@ -95,11 +95,16 @@
                                 'Afternoon' => ['label' => 'A', 'title' => 'Afternoon', 'color' => 'bg-orange-100'],
                                 'Evening' => ['label' => 'E', 'title' => 'Evening', 'color' => 'bg-slate-200'],
                             ];
+                            $periodColorMap = [
+                                'Morning' => 'bg-yellow-200',
+                                'Afternoon' => 'bg-orange-200',
+                                'Evening' => 'bg-blue-200',
+                            ];
                         @endphp
 
                         {{-- Period badges (top-right) --}}
                         @if(count($periods))
-                            <div class="absolute top-1 right-1 flex gap-1" role="list">
+                            <div class="absolute top-1 right-1 flex gap-1 z-10" role="list">
                                 @foreach($periods as $p)
                                     @php $info = $periodMap[$p] ?? ['label' => strtoupper(substr($p, 0, 1)), 'title' => $p, 'color' => 'bg-gray-200']; @endphp
                                     <span role="listitem" title="{{ $info['title'] }}" class="text-xs px-1 py-0.5 rounded {{ $info['color'] }} border">{{ $info['label'] }}</span>
@@ -111,14 +116,12 @@
                             {{-- simple emoji mapping --}}
                             @php
                                 $emojiMap = [1 => '😢',2 => '🙁',3 => '😐',4 => '🙂',5 => '😊'];
-                                $colorMap = [1=>'bg-blue-200',2=>'bg-red-200',3=>'bg-gray-200',4=>'bg-amber-200',5=>'bg-yellow-200'];
+                                $periodColor = $checkins->first()->period ?? null;
                             @endphp
-                            <div class="mt-2">
-                                <span class="inline-flex items-center px-2 py-1 rounded {{ $colorMap[$badge] ?? 'bg-gray-200' }}">{{ $emojiMap[$badge] ?? '•' }}</span>
+                            <div class="absolute inset-0 flex items-center justify-center {{ $periodColorMap[$periodColor] ?? 'bg-gray-200' }} rounded">
+                                <span class="inline-flex items-center px-2 py-1">{{ $emojiMap[$badge] ?? '•' }}</span>
                             </div>
                         @endif
-
-                        <div class="absolute inset-0 flex items-end justify-center pb-2"></div>
 
                     </div>
 

@@ -118,4 +118,42 @@ class CheckinController extends Controller
 
         return back()->with('success', 'Check-in deleted.');
     }
+
+    /**
+     * Get mood distribution data for the user.
+     */
+    public function moodDistribution(Request $request)
+    {
+        $userId = Auth::id();
+        $period = $request->input('period', '30'); // days
+
+        $checkins = CheckIn::where('user_id', $userId)
+            ->where('date', '>=', Carbon::now()->subDays($period))
+            ->whereNotNull('mood')
+            ->selectRaw('mood, COUNT(*) as count')
+            ->groupBy('mood')
+            ->orderBy('mood')
+            ->get();
+
+        return response()->json($checkins);
+    }
+
+    /**
+     * Get mood trend data for the user.
+     */
+    public function moodTrend(Request $request)
+    {
+        $userId = Auth::id();
+        $period = $request->input('period', '30'); // days
+
+        $checkins = CheckIn::where('user_id', $userId)
+            ->where('date', '>=', Carbon::now()->subDays($period))
+            ->whereNotNull('mood')
+            ->selectRaw('DATE(date) as date, AVG(mood) as average_mood')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return response()->json($checkins);
+    }
 }

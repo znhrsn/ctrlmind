@@ -86,6 +86,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkin', [CheckinController::class, 'store'])->name('checkin.store');
     Route::delete('/checkin/{checkin}', [CheckinController::class, 'destroy'])->name('checkin.destroy');
     Route::get('/checkin/start', [CheckinController::class, 'start'])->name('checkin.start');
+    Route::get('/checkin/mood-distribution', [CheckinController::class, 'moodDistribution'])->name('checkin.mood-distribution');
+    Route::get('/checkin/mood-trend', [CheckinController::class, 'moodTrend'])->name('checkin.mood-trend');
 });
 
 require __DIR__.'/auth.php';
