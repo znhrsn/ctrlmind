@@ -102,5 +102,38 @@
         <span class="text-sm font-medium" x-text="toastMessage"></span>
     </div>
 
+    @if(session('welcome_modal'))
+        <div 
+            x-data="{ show: true }" 
+            x-show="show" 
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        >
+            <div class="bg-white dark:bg-gray-900 text-gray-800 dark:text-white rounded-lg shadow-lg p-6 max-w-md w-full text-center">
+                <h2 class="text-2xl font-bold mb-3">
+                    Welcome to CTRL + Mind 🎉
+                </h2>
+                <p class="text-sm mb-4">
+                    CTRL + Mind is your space to write thoughts, save quotes, track your mood, explore the resource library, and chat with consultants.
+                </p>
+                <div class="mt-4 border-t border-gray-300 dark:border-gray-700 pt-4">
+                    <p class="text-sm mb-2">
+                        Your consultant is 
+                        <span class="font-semibold text-blue-500">
+                            {{ session('welcome_modal')['consultant'] }}
+                        </span>.
+                    </p>
+                    <p class="text-sm italic text-gray-500 mb-4">
+                        You can chat with them anytime for support 💬
+                    </p>
+                    <button 
+                        @click="show = false" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     </body>
 </html>

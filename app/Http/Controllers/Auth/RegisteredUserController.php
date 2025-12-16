@@ -13,23 +13,14 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use App\Models\MHQuestions;
 use App\Models\MHResponses;
-use App\Providers\RouteServiceProvider;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -44,10 +35,31 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Save survey responses if present
+        // ✅ Assign consultant fairly
+        $consultant = User::where('role', 'consultant')
+            ->withCount('clients')
+            ->orderBy('clients_count', 'asc')
+            ->inRandomOrder()
+            ->first();
+
+        if ($consultant) {
+            $user->consultant_id = $consultant->id;
+            $user->save();
+
+            // Notify consultant
+            $consultant->notify(new \App\Notifications\NewClientAssigned($user));
+
+            // Flash welcome modal
+            session()->flash('welcome_modal', [
+                'user' => $user->name,
+                'consultant' => $consultant->name,
+            ]);
+        }
+
+        // ✅ Save survey responses
         if ($request->has('survey')) {
             foreach ($request->input('survey') as $questionId => $value) {
-               $question = MHQuestions::find($questionId);
+                $question = MHQuestions::find($questionId);
                 MHResponses::create([
                     'user_id' => $user->id,
                     'question_id' => $questionId,
@@ -61,6 +73,5 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect('/dashboard');
-
     }
 }

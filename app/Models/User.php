@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Http\Request; // ✅ needed for authenticated()
+use App\Models\Message;      // ✅ needed for message relationships
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -21,8 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',          // <-- add this if you added a role column
-        'consultant_id', // <-- add this if you added consultant_id column
+        'role',          // consultant or client
+        'consultant_id', // link to assigned consultant
     ];
 
     /**
@@ -36,7 +36,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -51,16 +51,15 @@ class User extends Authenticatable
     /**
      * Quotes saved by the user.
      */
-    // User.php
     public function savedQuotes()
     {
         return $this->belongsToMany(\App\Models\Quote::class, 'user_quotes', 'user_id', 'quote_id')
                     ->withTimestamps()
-                    ->withPivot('is_pinned'); // include pivot field
+                    ->withPivot('is_pinned');
     }
 
     /**
-     * The consultant assigned to this user.
+     * The consultant assigned to this user (self-reference).
      */
     public function consultant()
     {
@@ -68,14 +67,16 @@ class User extends Authenticatable
     }
 
     /**
-     * All clients assigned to this consultant.
+     * All clients assigned to this consultant (self-reference).
      */
     public function clients()
     {
         return $this->hasMany(User::class, 'consultant_id');
     }
 
-    // Redirect after login based on role
+    /**
+     * Redirect after login based on role.
+     */
     public function authenticated(Request $request, $user)
     {
         if ($user->role === 'consultant') {
@@ -83,11 +84,18 @@ class User extends Authenticatable
         }
         return redirect()->route('dashboard'); // regular user dashboard
     }
+
+    /**
+     * Messages sent by this user.
+     */
     public function sentMessages()
     {
         return $this->hasMany(Message::class, 'user_id');
     }
 
+    /**
+     * Messages received by this consultant.
+     */
     public function receivedMessages()
     {
         return $this->hasMany(Message::class, 'consultant_id');

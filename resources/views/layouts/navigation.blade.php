@@ -14,7 +14,7 @@
                         <x-nav-link :href="route('consultant.dashboard')" :active="request()->routeIs('consultant.dashboard')">
                             Dashboard
                         </x-nav-link>
-                        <x-nav-link :href="route('consultant.notifications')" :active="request()->routeIs('consultant.notifications')">
+                        <x-nav-link :href="route('consultant.notifications.index')" :active="request()->routeIs('consultant.notifications.index')">
                             Notifications
                         </x-nav-link>
                         <x-nav-link :href="route('consultant.shared-journals')" :active="request()->routeIs('consultant.shared-journals')">
