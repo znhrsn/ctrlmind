@@ -92,12 +92,10 @@
                             $periods = $checkins ? $checkins->pluck('period')->unique()->values()->all() : [];
                             $periodMap = [
                                 'Morning' => ['label' => 'M', 'title' => 'Morning', 'color' => 'bg-yellow-100'],
-                                'Afternoon' => ['label' => 'A', 'title' => 'Afternoon', 'color' => 'bg-orange-100'],
                                 'Evening' => ['label' => 'E', 'title' => 'Evening', 'color' => 'bg-slate-200'],
                             ];
                             $periodColorMap = [
                                 'Morning' => 'bg-yellow-200',
-                                'Afternoon' => 'bg-orange-200',
                                 'Evening' => 'bg-blue-200',
                             ];
                         @endphp
@@ -131,7 +129,7 @@
         </div>
 
         {{-- Modal: Check-in form (Alpine driven) --}}
-        <div x-data="{open:false,date:null,period:'Evening',mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null,detectPeriod:function(){let h=(new Date()).getHours();if(h>=5 && h<12) return 'Morning'; if(h>=12 && h<17) return 'Afternoon'; return 'Evening';}}" @open-checkin.window="(function(){ date = $event.detail.date; period = detectPeriod(); existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
+        <div x-data="{open:false,date:null,period:'{{ $currentPeriod }}',mood:3,energy:3,focus:3,satisfaction:3,self_kindness:3,relaxation:3,note:'',existingId:null}" @open-checkin.window="(function(){ date = $event.detail.date; period = '{{ $currentPeriod }}'; existingId = null; mood=3; energy=3; focus=3; satisfaction=3; self_kindness=3; relaxation=3; note=''; var items = (window.CHECKINS && window.CHECKINS[date]) ? window.CHECKINS[date] : []; var found = items.find(function(c){ return c.period === period; }); if(found){ existingId = found.id; mood = found.mood || 3; energy = found.energy || 3; focus = found.focus || 3; satisfaction = found.satisfaction || 3; self_kindness = found.self_kindness || 3; relaxation = found.relaxation || 3; note = found.note || ''; } open = true; })()" x-effect="document.documentElement.classList.toggle('overflow-hidden', open)">
             <template x-if="open">
                 <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div class="bg-white rounded shadow-lg w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden">
@@ -172,55 +170,39 @@
                                     <h5 class="font-semibold mb-2">🌞 Morning Check-In</h5>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Energy <span class="text-xs text-gray-500">(<span x-text="energy"></span>)</span></label>
-                                        <input type="range" min="1" max="5" x-model.number="energy" name="energy" class="w-full h-2">
+                                        <input type="range" min="1" max="5" x-model.number="energy" name="energy" class="w-full h-2" :value="energy">
                                         <div class="text-xs text-gray-500 flex justify-between mt-1"><span>1 Exhausted</span><span>3 Neutral</span><span>5 Energized</span></div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Focus <span class="text-xs text-gray-500">(<span x-text="focus"></span>)</span></label>
-                                        <input type="range" min="1" max="5" x-model.number="focus" name="focus" class="w-full h-2">
+                                        <input type="range" min="1" max="5" x-model.number="focus" name="focus" class="w-full h-2" :value="focus">
                                         <div class="text-xs text-gray-500 flex justify-between mt-1"><span>1 Scattered</span><span>3 Average</span><span>5 Sharp</span></div>
                                     </div>
                                 </div>
 
-                                {{-- Afternoon survey (simple) --}}
-                                <div x-show="period=='Afternoon'" class="mb-2 bg-gray-50 p-3 rounded">
-                                    <h5 class="font-semibold mb-2">🌤 Afternoon Check-In</h5>
-                                    <p class="text-sm text-gray-500 mb-2">Quick mood check and a one-line note (keeps it fast).</p>
 
-                                    <div class="flex gap-2 mb-2">
-                                        <button type="button" class="text-xs px-2 py-1 rounded bg-gray-100" @click="note = note ? note + (note.endsWith(' ') ? '' : ' ') + 'Stressed' : 'Stressed'">Stressed</button>
-                                        <button type="button" class="text-xs px-2 py-1 rounded bg-gray-100" @click="note = note ? note + (note.endsWith(' ') ? '' : ' ') + 'Productive' : 'Productive'">Productive</button>
-                                        <button type="button" class="text-xs px-2 py-1 rounded bg-gray-100" @click="note = note ? note + (note.endsWith(' ') ? '' : ' ') + 'Tired' : 'Tired'">Tired</button>
-                                        <button type="button" class="text-xs px-2 py-1 rounded bg-gray-100" @click="note = note ? note + (note.endsWith(' ') ? '' : ' ') + 'Calm' : 'Calm'">Calm</button>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm mb-1">Short note <span class="text-xs text-gray-500">(<span x-text="(note || '').length"></span>/140)</span></label>
-                                        <input type="text" name="note" x-model="note" maxlength="140" class="w-full border rounded p-2 text-sm" placeholder="e.g., 'Back-to-back meetings'" />
-                                    </div>
-                                </div>
 
                                 {{-- Evening survey (default wellness) --}}
                                 <div x-show="period=='Evening'" class="mb-2 bg-gray-50 p-3 rounded">
                                     <h5 class="font-semibold mb-2">🌙 Evening Reflection</h5>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Satisfaction with the Day <span class="text-xs text-gray-500">(<span x-text="satisfaction"></span>)</span></label>
-                                        <input type="range" min="1" max="5" x-model.number="satisfaction" name="satisfaction" class="w-full h-2">
+                                        <input type="range" min="1" max="5" x-model.number="satisfaction" name="satisfaction" class="w-full h-2" :value="satisfaction">
                                         <div class="text-xs text-gray-500 flex justify-between mt-1"><span>1 Unsatisfied</span><span>3 Neutral</span><span>5 Fulfilled</span></div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="block text-sm mb-1">Self-Kindness <span class="text-xs text-gray-500">(<span x-text="self_kindness"></span>)</span></label>
-                                        <input type="range" min="1" max="5" x-model.number="self_kindness" name="self_kindness" class="w-full h-2">
+                                        <input type="range" min="1" max="5" x-model.number="self_kindness" name="self_kindness" class="w-full h-2" :value="self_kindness">
                                         <div class="text-xs text-gray-500 flex justify-between mt-1"><span>1 Very Critical</span><span>3 Neutral</span><span>5 Very Compassionate</span></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm mb-1">Relaxation <span class="text-xs text-gray-500">(<span x-text="relaxation"></span>)</span></label>
-                                        <input type="range" min="1" max="5" x-model.number="relaxation" name="relaxation" class="w-full">
+                                        <input type="range" min="1" max="5" x-model.number="relaxation" name="relaxation" class="w-full" :value="relaxation">
                                         <div class="text-xs text-gray-500 flex justify-between mt-1"><span>1 Tense</span><span>3 Neutral</span><span>5 Peaceful</span></div>
                                     </div>
                                 </div>
 
-                                <div x-show="period != 'Afternoon'">
+                                <div>
                                     <label class="block text-sm mb-1">Note (optional)</label>
                                     <textarea name="note" x-model="note" class="w-full border rounded p-2" rows="3"></textarea>
                                 </div>

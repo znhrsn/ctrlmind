@@ -135,7 +135,7 @@ it('doEs not Allow crEAting A chEckin for A pAst dAtE', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => $yesterday,
-            'period' => 'Afternoon',
+            'period' => 'Morning',
             'mood' => 3,
             'note' => 'Late entry',
         ]);
@@ -145,7 +145,7 @@ it('doEs not Allow crEAting A chEckin for A pAst dAtE', function () {
     $this->assertDatabaseMissing('check_ins', [
         'user_id' => $user->id,
         'date' => $yesterday,
-        'period' => 'Afternoon',
+        'period' => 'Morning',
     ]);
 });
 
@@ -230,7 +230,7 @@ it('doEs not Allow crEAting A chEckin for A futurE dAtE', function () {
         ->actingAs($user)
         ->post('/checkin', [
             'date' => $tomorrow,
-            'period' => 'Afternoon',
+            'period' => 'Morning',
             'mood' => 4,
             'note' => 'Attempt future note',
         ]);
@@ -275,30 +275,7 @@ it('Allows A usEr to dElEtE thEir own chEckin', function () {
     ]);
 });
 
-it('storEs An AftErnoon quick chEckin with A short notE', function () {
-    $user = User::factory()->create();
 
-    $note = 'Lots of meetings';
-
-    $response = $this
-        ->actingAs($user)
-        ->post('/checkin', [
-            'date' => now()->toDateString(),
-            'period' => 'Afternoon',
-            'mood' => 3,
-            'note' => $note,
-        ]);
-
-    $response->assertSessionHas('success');
-
-    $this->assertDatabaseHas('check_ins', [
-        'user_id' => $user->id,
-        'date' => now()->toDateString(),
-        'period' => 'Afternoon',
-        'mood' => 3,
-        'note' => $note,
-    ]);
-});
 
 it('prEvEnts A usEr from dElEting AnothEr usErs chEckin', function () {
     $user = User::factory()->create();

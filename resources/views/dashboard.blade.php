@@ -70,11 +70,11 @@
 
                         <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Survey Periods</h4>
                         @php
-                            $periodMap = ['morning'=>'🌞 Morning','afternoon'=>'🌤 Afternoon','evening'=>'🌙 Evening'];
+                            $periodMap = ['morning'=>'🌞 Morning','evening'=>'🌙 Evening'];
                             $pmax = max([$periodCounts->max() ?? 0,1]);
                         @endphp
                         <div class="space-y-2 mb-4 w-full max-w-xs">
-                            @foreach(['morning','afternoon','evening'] as $p)
+                            @foreach(['morning','evening'] as $p)
                                 @php $count = $periodCounts[$p] ?? 0; $pct = round(($count/$pmax)*100); @endphp
                                 <div class="flex items-center gap-2">
                                     <div class="w-20 text-xs text-gray-500 dark:text-gray-300">{{ $periodMap[$p] }}</div>
