@@ -35,12 +35,14 @@
                 $checkinsJson = collect($checkinsByDate)->map(function($col) {
                     return collect($col)->map(function($c){ return $c->toArray(); })->values()->all();
                 })->all();
+                $today = \Carbon\Carbon::today()->toDateString();
             @endphp
             <script>
                 window.CHECKINS = {!! json_encode($checkinsJson) !!};
+                window.TODAY = '{{ $today }}';
             </script>
 
-            @if(!empty($openDate))
+            @if(!empty($openDate) && $openDate === $today)
                 <script>
                     // Dispatch the open-checkin event after the DOM loads so Alpine can respond
                     document.addEventListener('DOMContentLoaded', function () {
@@ -51,7 +53,7 @@
 
             {{-- Calendar grid (simple current month) --}}
             <div x-data="{selectedDate:null}"
-                 @open-checkin.window="selectedDate = $event.detail.date"
+            <div @open-checkin.window="if($event.detail.date === window.TODAY) selectedDate = $event.detail.date" 
                  @close-checkin.window="selectedDate = null"
                  class="grid grid-cols-7 gap-1 mt-2 w-full">
                 @php
@@ -75,12 +77,15 @@
                     @endphp
 
                     @php
-                        $isPastCell = $date->lt(\Carbon\Carbon::today());
+                        $today = \Carbon\Carbon::today();
+                        $isPastCell = $date->lt($today);
+                        $isToday = $date->isSameDay($today);
+                        $isFuture = $date->gt($today);
                     @endphp
 
-                    <div :class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400' : ''"
-                         class="h-16 p-2 border rounded {{ $isPastCell ? 'bg-gray-100 opacity-70 cursor-not-allowed' : ($isCurrentMonth ? 'bg-white cursor-pointer' : 'bg-gray-100 cursor-not-allowed') }} relative"
-                         @if(! $isPastCell) @click="$dispatch('open-checkin', { date: '{{ $date->toDateString() }}' })" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}" @endif
+                    <div :class="selectedDate === '{{ $date->toDateString() }}' ? 'ring-2 ring-offset-2 ring-blue-400 bg-blue-50' : '{{ $isPastCell ? 'bg-gray-100 opacity-70 cursor-not-allowed' : ($isToday ? 'bg-white cursor-pointer' : 'bg-gray-50 cursor-not-allowed') }}'"
+                         class="h-16 p-2 border rounded relative"
+                         @if($isToday) @click="selectedDate='{{ $date->toDateString() }}'; $dispatch('open-checkin', { date: '{{ $date->toDateString() }}' })" role="button" tabindex="0" aria-label="Open check-in for {{ $date->toDateString() }}" @endif
                     >
                         <div class="text-xs font-medium">{{ $date->day }}</div>
 

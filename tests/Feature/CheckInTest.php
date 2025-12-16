@@ -196,6 +196,42 @@ it('opens the check-in modal when visiting the calendar with open_date param', f
     $response->assertSee(now()->format('F Y'));
 });
 
+it('does not auto-open modal for a non-today open_date param', function () {
+    $user = User::factory()->create();
+
+    $tomorrow = now()->addDay()->toDateString();
+
+    $response = $this
+        ->actingAs($user)
+        ->get('/checkin?open_date=' . $tomorrow);
+
+    $response->assertOk();
+    // Should not dispatch the open-checkin event for a non-today date
+    $this->assertStringNotContainsString('open-checkin', $response->getContent());
+});
+
+it('does not allow creating a checkin for a future date', function () {
+    $user = User::factory()->create();
+
+    $tomorrow = now()->addDay()->toDateString();
+
+    $response = $this
+        ->actingAs($user)
+        ->post('/checkin', [
+            'date' => $tomorrow,
+            'period' => 'afternoon',
+            'mood' => 4,
+            'note' => 'Attempt future note',
+        ]);
+
+    $response->assertSessionHasErrors('date');
+
+    $this->assertDatabaseMissing('check_ins', [
+        'user_id' => $user->id,
+        'date' => $tomorrow,
+    ]);
+});
+
 it('shows a specific month when month/year params are provided', function () {
     $user = User::factory()->create();
 

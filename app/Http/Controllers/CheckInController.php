@@ -47,7 +47,7 @@ class CheckinController extends Controller
         }
 
         $validated = $request->validate([
-            'date' => ['required', 'date', 'after_or_equal:today'],
+            'date' => ['required', 'date'],
             'period' => ['required', 'in:morning,afternoon,evening'],
             'mood' => ['nullable', 'integer', 'between:1,5'],
             'energy' => ['nullable', 'integer', 'between:1,5'],
@@ -57,6 +57,12 @@ class CheckinController extends Controller
             'relaxation' => ['nullable', 'integer', 'between:1,5'],
             'note' => ['nullable', 'string', 'max:280'],
         ]);
+
+        // Server-side: only allow creating/updating check-ins for today
+        $submittedDate = Carbon::parse($validated['date'])->startOfDay();
+        if (! $submittedDate->isSameDay(Carbon::today())) {
+            return back()->withErrors(['date' => 'You may only submit a check-in for today.']);
+        }
 
         $userId = Auth::id();
 
