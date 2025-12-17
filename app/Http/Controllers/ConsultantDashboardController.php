@@ -10,12 +10,20 @@ class ConsultantDashboardController extends Controller
     {
         $user = $request->user();
 
-        // ✅ Count unread notifications for badge
+        // Count unread notifications for badge
         $unreadCount = $user->unreadNotifications()->count();
 
-        // ✅ Fetch clients assigned to consultant
-        $clients = $user->clients()->get();
+        // Allow searching clients by name (case-insensitive)
+        $q = trim($request->input('q', ''));
+        $clientsQuery = $user->clients();
 
-        return view('consultants.dashboard', compact('unreadCount', 'clients'));
+        if ($q !== '') {
+            $qLower = mb_strtolower($q);
+            $clientsQuery->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"]);
+        }
+
+        $clients = $clientsQuery->orderBy('name')->paginate(20)->withQueryString();
+
+        return view('consultants.dashboard', compact('unreadCount', 'clients', 'q'));
     }
 }
