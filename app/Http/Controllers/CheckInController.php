@@ -108,9 +108,32 @@ class CheckinController extends Controller
             abort(403);
         }
 
+        // Allow deletion only within 10 hours of creation
+        $elapsed = now()->diffInSeconds($checkin->created_at);
+        if ($elapsed > (10 * 3600)) {
+            return back()->with('error', 'Deletion window (10 hours) has expired.');
+        }
+
         $checkin->delete();
 
         return back()->with('success', 'Check-in deleted.');
+    }
+
+    /**
+     * Paginated listing of all user's check-ins.
+     */
+    public function all(Request $request)
+    {
+        $userId = Auth::id();
+
+        $checkins = CheckIn::where('user_id', $userId)
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(20);
+
+        return view('checkin.all', [
+            'checkins' => $checkins,
+        ]);
     }
 
     /**
