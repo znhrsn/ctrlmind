@@ -140,7 +140,7 @@
                                                     Cancel
                                                 </button>
 
-                                                <form method="POST" action="{{ route('journal.archiveEntry', $entry->id) }}">
+                                                <form method="POST" action="{{ route('journal.archive', $entry->id) }}">
                                                     @csrf
                                                     <button type="submit" class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700">
                                                         Archive
