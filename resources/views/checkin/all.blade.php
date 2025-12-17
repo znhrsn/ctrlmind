@@ -30,11 +30,15 @@
                                 <td class="py-2">{{ $c->note ? \Illuminate\Support\Str::limit($c->note, 80) : 'No note' }}</td>
                                 <td class="py-2 text-right">
                                     <a href="{{ route('checkin.index', ['open_date' => $c->date, 'open_period' => $c->period]) }}" class="text-blue-500 text-xs hover:underline mr-3">View</a>
+                                    @if(\Carbon\Carbon::now()->diffInSeconds($c->created_at) <= (10 * 3600))
                                     <form action="{{ route('checkin.destroy', $c) }}" method="POST" class="inline" onsubmit="return confirm('Delete this check-in?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 text-xs">Delete</button>
                                     </form>
+                                    @else
+                                    <span class="text-xs text-gray-500">Deletion window expired</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

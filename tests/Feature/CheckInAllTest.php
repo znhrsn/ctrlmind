@@ -52,3 +52,44 @@ it('navigates from dashboard View link to modal open URL', function () {
     $viewResp->assertOk();
     $viewResp->assertSee('open-checkin', false);
 });
+
+it('allows deletion within 10 hours', function () {
+    $user = User::factory()->create();
+
+    $ci = CheckIn::create([
+        'user_id' => $user->id,
+        'date' => now()->toDateString(),
+        'period' => 'Morning',
+        'mood' => 3,
+        'note' => 'Will be deleted',
+    ]);
+
+    // Simulate created_at 9 hours ago
+    $ci->created_at = now()->subHours(9);
+    $ci->save();
+
+    $resp = $this->actingAs($user)->delete('/checkin/' . $ci->id);
+    $resp->assertRedirect();
+    $this->assertDatabaseMissing('check_ins', ['id' => $ci->id]);
+});
+
+it('prevents deletion after 10 hours', function () {
+    $user = User::factory()->create();
+
+    $ci = CheckIn::create([
+        'user_id' => $user->id,
+        'date' => now()->toDateString(),
+        'period' => 'Morning',
+        'mood' => 3,
+        'note' => 'Too old to delete',
+    ]);
+
+    // Simulate created_at 11 hours ago
+    $ci->created_at = now()->subHours(11);
+    $ci->save();
+
+    $resp = $this->actingAs($user)->delete('/checkin/' . $ci->id);
+    $resp->assertRedirect();
+    $resp->assertSessionHas('error');
+    $this->assertDatabaseHas('check_ins', ['id' => $ci->id]);
+});
