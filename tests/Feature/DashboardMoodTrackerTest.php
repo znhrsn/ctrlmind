@@ -58,4 +58,13 @@ it('shows mood trend and recent checkins on dashboard', function () {
     $response2 = $this->actingAs($user2)->get('/dashboard');
     $response2->assertSee('AM note', false);
     $response2->assertSee('PM note', false);
+
+    // Older entries should also be included in counts (not limited to the 30-day window)
+    $oldUser = User::factory()->create();
+    CheckIn::create(['user_id' => $oldUser->id, 'date' => now()->subDays(60)->toDateString(), 'period' => 'Evening', 'mood' => 5, 'note' => 'Old entry']);
+
+    $oldResp = $this->actingAs($oldUser)->get('/dashboard');
+    // View data should contain the counts that include the old entry
+    $oldResp->assertViewHas('periodCounts', function($pc){ return ($pc['evening'] ?? 0) === 1; });
+    $oldResp->assertViewHas('moodCounts', function($mc){ return ($mc[5] ?? 0) === 1; });
 });

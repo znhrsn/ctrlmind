@@ -121,17 +121,14 @@ class QuoteController extends Controller
             $moodTrend[] = ['date' => $dateKey, 'avg' => $avg];
         }
 
-        // Counts by mood value in the range (normalize to what's present in DB)
-        $rangeCheckins = \App\Models\CheckIn::where('user_id', $user->id)
-            ->whereBetween('date', [$start->toDateString(), now()->toDateString()])
-            ->get();
+        // Counts by mood and period across all saved check-ins (so entries on any day show up in these counts)
+        $allCheckins = \App\Models\CheckIn::where('user_id', $user->id)->get();
 
-        $moodCounts = $rangeCheckins->whereNotNull('mood')->groupBy('mood')->map->count();
+        $moodCounts = $allCheckins->whereNotNull('mood')->groupBy('mood')->map->count();
 
         // Counts by period (normalize to lowercase keys so view can read ['morning','evening'])
-        $periodCounts = $rangeCheckins->groupBy(function($c){ return strtolower(trim($c->period ?? '')); })->map->count();
+        $periodCounts = $allCheckins->groupBy(function($c){ return strtolower(trim($c->period ?? '')); })->map->count();
 
-        // Ensure keys exist for morning/evening so the view always has a count for them
         // ensure at least morning/evening keys exist with zero defaults
         $periodCounts = collect(['morning' => 0, 'evening' => 0])->merge($periodCounts);
 
