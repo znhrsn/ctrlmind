@@ -52,9 +52,50 @@ class ConsultantController extends Controller
         return view('consultants.notifications');
     }
 
-    public function sharedJournals()
+    public function sharedJournals(Request $request)
     {
-        // TODO: fetch shared journals from a pivot table
-        return view('consultants.shared-journals');
+        $consultant = auth()->user();
+
+        $q = trim($request->input('q', ''));
+        $selectedUserId = $request->input('user_id');
+
+        // Find user IDs that have at least one journal entry shared with a consultant
+        $sharedUserIds = \App\Models\JournalEntry::where('shared_with_consultant', true)
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        // Base user query limited to those who have shared journals
+        $usersQuery = \App\Models\User::whereIn('id', $sharedUserIds);
+
+        if ($q !== '') {
+            $qLower = mb_strtolower($q);
+            $usersQuery->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"]);
+        }
+
+        $users = $usersQuery->orderBy('name')->paginate(20)->withQueryString();
+
+        // Precompute counts and last shared date per user
+        $stats = \App\Models\JournalEntry::where('shared_with_consultant', true)
+            ->selectRaw('user_id, COUNT(*) as total, MAX(created_at) as last_shared')
+            ->groupBy('user_id')
+            ->pluck('total', 'user_id');
+
+        $lastShared = \App\Models\JournalEntry::where('shared_with_consultant', true)
+            ->selectRaw('user_id, MAX(created_at) as last_shared')
+            ->groupBy('user_id')
+            ->pluck('last_shared', 'user_id');
+
+        $entries = collect();
+        if ($selectedUserId) {
+            $entries = \App\Models\JournalEntry::where('user_id', $selectedUserId)
+                ->where('shared_with_consultant', true)
+                ->with('user')
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+        }
+
+        return view('consultants.shared-journals', compact('users', 'stats', 'lastShared', 'entries', 'q', 'selectedUserId'));
     }
 }
