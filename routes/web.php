@@ -88,6 +88,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkin/start', [CheckinController::class, 'start'])->name('checkin.start');
     Route::get('/checkin/mood-distribution', [CheckinController::class, 'moodDistribution'])->name('checkin.mood-distribution');
     Route::get('/checkin/mood-trend', [CheckinController::class, 'moodTrend'])->name('checkin.mood-trend');
+    // All check-ins listing
+    Route::get('/checkins', [CheckinController::class, 'all'])->name('checkin.all');
 });
 
 require __DIR__.'/auth.php';

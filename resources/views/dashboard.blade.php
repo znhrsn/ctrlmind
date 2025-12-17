@@ -86,7 +86,7 @@
                             @endforeach
                         </div>
 
-                        <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Check-ins</h5>
+                        <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Check-ins <a href="{{ route('checkin.all') }}" class="text-xs text-blue-500 hover:underline ml-2">Show all</a></h5>
                         <div class="space-y-2 text-sm w-full max-w-xs">
                             @foreach($recentCheckins as $c)
                                 @php
