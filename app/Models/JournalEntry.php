@@ -2,26 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JournalEntry extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
 
-    protected $fillable = ['user_id', 'quote_id', 'title', 'reflection', 'shared_with_consultant'];
+    protected $fillable = [
+        'user_id',
+        'quote_id',
+        'reflection',
+        'archived',
+        'archived_at',
+        'shared_with_consultant',
+    ];
 
-    /**
-     * Relationships
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
+    // Relationship to Quote
     public function quote()
     {
-        return $this->belongsTo(Quote::class);
+        return $this->belongsTo(Quote::class, 'quote_id');
     }
 }
-

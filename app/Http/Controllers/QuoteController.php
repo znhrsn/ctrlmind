@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Quote;
 use App\Models\Resource; 
 use Illuminate\Support\Facades\Cache;
+use App\Models\JournalEntry;
+use App\Models\Checkin; // ✅ Add this so we can query check-ins
 
 class QuoteController extends Controller
 {
@@ -14,11 +16,10 @@ class QuoteController extends Controller
     {
         $user = auth()->user();
 
-        // Use relationship instead of raw UserQuote
         $userQuotes = $user->savedQuotes()
             ->withPivot('is_pinned')
-            ->orderByDesc('pivot_is_pinned')   // pinned first
-            ->orderBy('pivot_created_at', 'desc') // then newest saved
+            ->orderByDesc('pivot_is_pinned')
+            ->orderBy('pivot_created_at', 'desc')
             ->get();
 
         return view('quotes.index', compact('userQuotes'));
@@ -80,7 +81,7 @@ class QuoteController extends Controller
         return redirect()->back()->with('status', 'Quote Pinned');
     }
 
-    // Dashboard
+    // ✅ Dashboard
     public function dashboard()
     {
         $today = now()->toDateString();
@@ -90,15 +91,47 @@ class QuoteController extends Controller
             return Quote::inRandomOrder()->first();
         });
 
-        // ✅ Define savedQuoteIds properly
         $savedQuoteIds = auth()->user()
-            ->savedQuotes()   // relationship from User model
-            ->pluck('quote_id'); // or ->pluck('quotes.id') depending on your schema
+            ->savedQuotes()
+            ->pluck('quote_id');
 
-        // Featured resources
         $featuredResources = Resource::where('is_featured', true)->take(3)->get();
 
-        return view('dashboard', compact('quote', 'savedQuoteIds', 'featuredResources'));
+        // ✅ Mood Tracker data
+        $moodCounts = Checkin::where('user_id', auth()->id())
+            ->where('date', '>=', now()->subDays(30))
+            ->selectRaw('mood, COUNT(*) as count')
+            ->groupBy('mood')
+            ->pluck('count', 'mood');
+
+        $periodCounts = Checkin::where('user_id', auth()->id())
+            ->where('date', '>=', now()->subDays(30))
+            ->selectRaw('period, COUNT(*) as count')
+            ->groupBy('period')
+            ->pluck('count', 'period');
+
+        $recentCheckins = Checkin::where('user_id', auth()->id())
+            ->latest('date')
+            ->take(5)
+            ->get();
+
+        $moodTrend = Checkin::where('user_id', auth()->id())
+            ->where('date', '>=', now()->subDays(30))
+            ->selectRaw('date, AVG(mood) as avg')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(fn($row) => ['date' => $row->date, 'avg' => $row->avg]);
+
+        return view('dashboard', compact(
+            'quote',
+            'savedQuoteIds',
+            'featuredResources',
+            'moodCounts',
+            'periodCounts',
+            'recentCheckins',
+            'moodTrend'
+        ));
     }
 
     // Redirect to journal creation with quote
@@ -106,5 +139,26 @@ class QuoteController extends Controller
     {
         $quoteId = $request->quote_id;
         return redirect()->route('journal.create', ['quote_id' => $quoteId]);
+    }
+
+    public function showShareForm(Quote $quote)
+    {
+        return view('quotes.share_to_journal', compact('quote'));
+    }
+
+    public function shareToJournal(Request $request)
+    {
+        $request->validate([
+            'quote_id' => 'required|exists:quotes,id',
+            'reflection' => 'required|string|max:1000',
+        ]);
+
+        JournalEntry::create([
+            'user_id'   => auth()->id(),
+            'quote_id'  => $request->quote_id,
+            'reflection'=> $request->reflection,
+        ]);
+
+        return redirect()->route('journals.index')->with('status', 'Quote shared to journal!');
     }
 }

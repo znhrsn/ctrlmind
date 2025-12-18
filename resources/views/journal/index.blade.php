@@ -1,174 +1,115 @@
 <x-app-layout>
     <x-slot name="header">
-        <!-- Journal navigation with icons -->
         <div class="flex space-x-6">
-            <!-- Journal Entries -->
             <a href="{{ route('journal.index') }}" 
-               class="flex items-center gap-2 px-4 py-2 rounded {{ request()->routeIs('journal.index') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white' }}">
-                <!-- Document icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M7 8h10M7 12h10M7 16h10M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+               class="flex items-center gap-2 px-4 py-2 rounded transition-colors {{ request()->routeIs('journal.index') ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h10M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Entries
+                <span class="font-bold uppercase tracking-widest text-xs">Entries</span>
             </a>
 
-            <!-- Archived -->
             <a href="{{ route('journal.archived') }}" 
-               class="flex items-center gap-2 px-4 py-2 rounded {{ request()->routeIs('journal.archived') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:text-white' }}">
-                <!-- Archive box icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M3 7h18M5 7v13h14V7M9 3h6v4H9V3z" />
+               class="flex items-center gap-2 px-4 py-2 rounded transition-colors {{ request()->routeIs('journal.archived') ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7v13h14V7M9 3h6v4H9V3z" />
                 </svg>
-                Archives
+                <span class="font-bold uppercase tracking-widest text-xs">Archives</span>
             </a>
         </div>
     </x-slot>
 
     <div class="py-7">
-
-        <!-- SINGLE CLEAN STATUS MESSAGE -->
-        @if(session('status'))
-            <div id="status-message" 
-                 class="fixed top-6 left-1/2 transform -translate-x-1/2 
-                        px-4 py-3 rounded-lg border border-green-600 
-                        bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 
-                        shadow-lg flex items-center gap-3 text-center z-50">
-
-                <!-- Check icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-
-                <span class="text-sm font-medium">
-                    {{ session('status') }}
-                </span>
-            </div>
-
-            <script>
-                setTimeout(() => {
-                    const msg = document.getElementById('status-message');
-                    if (msg) {
-                        msg.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-                        msg.style.opacity = "0";
-                        msg.style.transform = "translate(-50%, -20px)";
-                        setTimeout(() => msg.remove(), 500);
-                    }
-                }, 3000);
-            </script>
-        @endif
-
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-2xl p-6">
 
-                <!-- Free-form journal entry -->
+                {{-- New Entry Form --}}
                 <div class="mb-8">
                     <form method="POST" action="{{ route('journal.store') }}">
                         @csrf
                         <textarea name="reflection" rows="4" placeholder="Write your thoughts here..."
-                                  class="w-full px-4 py-2 rounded border border-gray-600 bg-gray-800 text-white placeholder-gray-400"></textarea>
-                        <button type="submit" class="mt-3 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                  class="w-full px-4 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+                        <button type="submit" class="mt-3 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-widest transition-colors shadow-md shadow-green-100 dark:shadow-none">
                             Save Journal Entry
                         </button>
                     </form>
                 </div>
 
-                <!-- Existing entries -->
                 @if($entries->isEmpty())
-                    <p class="text-gray-500 dark:text-gray-400">You haven’t written any reflections yet.</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-center py-10 italic">You haven’t written any reflections yet.</p>
                 @else
                     <div class="space-y-6">
                         @foreach($entries as $entry)
-                            <div class="relative bg-gray-900 text-white rounded-lg shadow p-6">
+                            <div class="relative bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 hover:shadow-md transition-shadow">
 
-                                <!-- Dropdown menu (⋮) -->
-                                <div x-data="{ open: false, showArchiveModal: false }" class="absolute top-2 right-3">
-                                    <button @click="open = !open" class="text-gray-400 hover:text-white text-xl font-bold">
+                                <div x-data="{ open: false, showArchiveModal: false }" class="absolute top-4 right-4">
+                                    <button @click="open = !open" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl font-bold p-1">
                                         ⋮
                                     </button>
 
-                                    <!-- Dropdown -->
-                                    <div x-show="open" @click.away="open = false"
-                                         x-transition:enter="transition ease-out duration-200"
-                                         x-transition:enter-start="opacity-0 transform scale-95"
-                                         x-transition:enter-end="opacity-100 transform scale-100"
-                                         x-transition:leave="transition ease-in duration-150"
-                                         x-transition:leave-start="opacity-100 transform scale-100"
-                                         x-transition:leave-end="opacity-0 transform scale-95"
-                                         class="absolute right-0 mt-2 bg-gray-800 border border-gray-700 rounded shadow-lg z-10 w-48">
-                                        <ul class="text-sm text-white divide-y divide-gray-700">
-                                            <!-- Share -->
+                                    <div x-show="open" @click.away="open = false" x-cloak
+                                         class="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-10 w-48 overflow-hidden">
+                                        <ul class="text-sm">
                                             <li>
                                                 <form method="POST" action="{{ route('journal.share', $entry->id) }}">
                                                     @csrf
-                                                    <button type="submit" class="w-full text-left px-4 py-2 hover:bg-gray-700">
-                                                        {{ $entry->shared_with_consultant ? 'Unshare with Consultant' : 'Share with Consultant' }}
+                                                    <button type="submit" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+                                                        {{ $entry->shared_with_consultant ? 'Unshare Entry' : 'Share with Consultant' }}
                                                     </button>
                                                 </form>
                                             </li>
-
-                                            <!-- Edit (only if within 24h) -->
                                             @if($entry->created_at->timezone('Asia/Manila')->gt(now('Asia/Manila')->subDay()))
                                                 <li>
-                                                    <a href="{{ route('journal.edit', $entry->id) }}" class="block px-4 py-2 hover:bg-gray-700">
-                                                        Edit
+                                                    <a href="{{ route('journal.edit', $entry->id) }}" class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+                                                        Edit Reflection
                                                     </a>
                                                 </li>
                                             @endif
-
-                                            <!-- Archive -->
                                             <li>
-                                                <button type="button" @click="showArchiveModal = true" class="w-full text-left px-4 py-2 hover:bg-gray-700">
-                                                    Archive
+                                                <button type="button" @click="showArchiveModal = true" class="w-full text-left px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600">
+                                                    Archive Entry
                                                 </button>
                                             </li>
                                         </ul>
                                     </div>
 
-                                    <!-- Archive confirmation modal -->
-                                    <div x-show="showArchiveModal" x-transition 
-                                         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                                        <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-6 shadow-lg w-full max-w-sm mx-auto">
-                                            <h2 class="text-lg font-semibold mb-4">Confirm Archive</h2>
-                                            <p class="text-sm mb-6">Are you sure you want to archive this entry?</p>
-
+                                    {{-- Archive Confirmation Modal --}}
+                                    <div x-show="showArchiveModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showArchiveModal = false"></div>
+                                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl w-full max-w-sm relative z-10">
+                                            <h2 class="text-lg font-black text-gray-900 dark:text-white mb-2">Confirm Archive</h2>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Are you sure you want to archive this entry? You can find it in your Archives later.</p>
                                             <div class="flex justify-end gap-3">
-                                                <button @click="showArchiveModal = false" class="px-4 py-2 text-sm bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600">
-                                                    Cancel
-                                                </button>
-
+                                                <button @click="showArchiveModal = false" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
                                                 <form method="POST" action="{{ route('journal.archiveEntry', $entry->id) }}">
                                                     @csrf
-                                                    <button type="submit" class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700">
-                                                        Archive
-                                                    </button>
+                                                    <button type="submit" class="px-4 py-2 text-xs font-bold uppercase tracking-widest bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">Archive</button>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Timestamp -->
-                                <span class="text-sm text-gray-400">
-                                    {{ $entry->created_at->timezone('Asia/Manila')->format('F j, Y \a\t g:i A') }}
-                                </span>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        {{ $entry->created_at->timezone('Asia/Manila')->format('F j, Y — g:i A') }}
+                                    </span>
+                                </div>
 
-                                <!-- Quote -->
                                 @if($entry->quote)
-                                    <p class="italic mt-2">“{{ $entry->quote->text }}” — {{ $entry->quote->author }}</p>
+                                    <div class="bg-blue-50/50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 mb-4 rounded-r-xl">
+                                        <p class="italic text-gray-700 dark:text-blue-200 text-sm">“{{ $entry->quote->text }}”</p>
+                                        <p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mt-2">— {{ $entry->quote->author }}</p>
+                                    </div>
                                 @endif
 
-                                <!-- Reflection -->
-                                <p class="mt-2">{{ $entry->reflection }}</p>
+                                <p class="text-gray-700 dark:text-gray-200 leading-relaxed">{{ $entry->reflection }}</p>
 
-                                <!-- Edit deadline note -->
                                 @if($entry->created_at->timezone('Asia/Manila')->gt(now('Asia/Manila')->subDay()))
-                                    <div class="mt-4 flex justify-end">
-                                        <span class="text-xs text-gray-400 italic">
-                                            Edit until {{ $entry->created_at->timezone('Asia/Manila')->addDay()->format('M j, g:i A') }}
+                                    <div class="mt-6 pt-4 border-t border-gray-50 dark:border-gray-800 flex justify-end">
+                                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                                            Editable until: {{ $entry->created_at->timezone('Asia/Manila')->addDay()->format('M j, g:i A') }}
                                         </span>
                                     </div>
                                 @endif
@@ -177,7 +118,7 @@
                     </div>
                 @endif
             </div>
-                        <!-- Footer -->
+
             <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
                 © 2025 CTRL+Mind EVSU
             </footer>

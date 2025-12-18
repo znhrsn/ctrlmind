@@ -31,7 +31,18 @@ Route::middleware('auth')->group(function () {
     // Daily questions
     Route::post('/daily-questions', [DailyQuestionController::class, 'store'])->name('daily.questions.store');
 
-    // Journal
+    // Journal// Show reflection form
+    Route::get('/quotes/{quote}/share-to-journal', [\App\Http\Controllers\QuoteController::class, 'showShareForm'])
+        ->name('quotes.showShareForm');
+
+    Route::get('/journals', [JournalController::class, 'index'])
+        ->name('journals.index');
+
+
+    // Handle saving reflection
+    Route::post('/quotes/share-to-journal', [\App\Http\Controllers\QuoteController::class, 'shareToJournal'])
+        ->name('quotes.shareToJournal');
+
     Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
     Route::get('/journal/create', [JournalController::class, 'create'])->name('journal.create');
     Route::post('/journal', [JournalController::class, 'store'])->name('journal.store');
@@ -91,6 +102,16 @@ Route::middleware('auth')->group(function () {
 
     // Check-in
     Route::get('/checkin/start', [CheckinController::class, 'start'])->name('checkin.start');
+
+    Route::get('/checkin', [CheckinController::class, 'index'])
+    ->name('checkin.index');
+
+    Route::post('/checkin', [CheckinController::class, 'store']) ->middleware(['auth']) ->name('checkin.store');
+
+    Route::get('/checkins', [MoodController::class, 'index'])->name('checkins.index');
+    Route::post('/checkins', [MoodController::class, 'store'])->name('checkins.store');
+    Route::post('/checkin', [CheckinController::class, 'store'])->name('checkin.store');
+    
 });
 
 require __DIR__.'/auth.php';
