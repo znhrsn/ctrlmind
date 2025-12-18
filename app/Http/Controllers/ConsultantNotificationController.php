@@ -6,13 +6,12 @@ use Illuminate\Http\Request;
 
 class ConsultantNotificationController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $user = $request->user();
+        $all = auth()->user()->notifications()->paginate(10);
+        auth()->user()->unreadNotifications->markAsRead();
 
-        return view('consultants.notifications.index', [
-            'unread' => $user->unreadNotifications,
-            'all' => $user->notifications()->paginate(15),
-        ]);
+        // Changed from 'consultant.notifications' to match your path
+        return view('consultants.notifications.index', compact('all')); 
     }
 }

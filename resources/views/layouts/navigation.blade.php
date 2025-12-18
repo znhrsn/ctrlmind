@@ -48,10 +48,18 @@
                         <x-nav-link :href="route('consultant.dashboard')" :active="request()->routeIs('consultant.dashboard')">
                             Dashboard
                         </x-nav-link>
-                        <x-nav-link :href="route('consultant.notifications.index')" :active="request()->routeIs('consultant.notifications.index')">
-                            Notifications
+                        <x-nav-link :href="route('consultant.notifications.index')" :active="request()->routeIs('consultant.notifications.index')" class="relative">
+                            {{ __('Notifications') }}
+                            
+                            @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
+                            
+                            @if($unreadCount > 0)
+                                <span class="absolute -top-1 -right-3 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-gray-800">
+                                    {{ $unreadCount }}
+                                </span>
+                            @endif
                         </x-nav-link>
-                        <x-nav-link :href="route('consultant.shared-journals')" :active="request()->routeIs('consultant.shared-journals')">
+                                                <x-nav-link :href="route('consultant.shared-journals')" :active="request()->routeIs('consultant.shared-journals')">
                             Shared Journals
                         </x-nav-link>
 

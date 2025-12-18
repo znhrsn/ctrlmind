@@ -11,7 +11,9 @@ class ConsultantController extends Controller
 {
     public function dashboard()
     {
-        $clients = auth()->user()->clients; // assumes relation defined in User model
+        // Assumes 'clients' relation is defined in User model: 
+        // public function clients() { return $this->hasMany(User::class, 'consultant_id'); }
+        $clients = auth()->user()->clients; 
         return view('consultants.dashboard', compact('clients'));
     }
 
@@ -19,7 +21,7 @@ class ConsultantController extends Controller
     {
         $consultant = auth()->user();
 
-        // Fetch all messages between consultant and this user
+        // Fetch all messages between consultant and this specific client
         $messages = Message::where(function ($query) use ($user, $consultant) {
                 $query->where('sender_id', $user->id)
                       ->where('receiver_id', $consultant->id);
@@ -36,10 +38,10 @@ class ConsultantController extends Controller
 
     public function reply(Request $request, User $user)
     {
-        $consultant = auth()->user();
+        $request->validate(['content' => 'required']);
 
         Message::create([
-            'sender_id'   => $consultant->id,
+            'sender_id'   => auth()->id(),
             'receiver_id' => $user->id,
             'content'     => $request->content,
         ]);
@@ -47,17 +49,16 @@ class ConsultantController extends Controller
         return redirect()->back()->with('success', 'Message sent.');
     }
     
-    public function notifications()
-    {
-        // TODO: fetch unread messages or journal shares
-        return view('consultants.notifications');
-    }
-
+    /**
+     * View shared journals from clients
+     */
     public function sharedJournals()
     {
         $consultantId = auth()->id();
 
-        $journals = JournalEntry::with(['user', 'quote']) // eager-load to show quote/user
+        // Fetch journals where shared_with_consultant is true 
+        // AND the user belongs to THIS consultant
+        $journals = JournalEntry::with(['user', 'quote']) 
             ->where('shared_with_consultant', true)
             ->whereHas('user', function ($q) use ($consultantId) {
                 $q->where('consultant_id', $consultantId);

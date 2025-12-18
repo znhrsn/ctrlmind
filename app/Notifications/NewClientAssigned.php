@@ -3,30 +3,39 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\DatabaseMessage;
-use App\Models\User;
 
-class NewClientAssigned extends Notification implements ShouldQueue
+class NewClientAssigned extends Notification
 {
     use Queueable;
 
-    public function __construct(public User $client) {}
+    protected $user; // This holds the new client data
 
-    public function via($notifiable): array
+    public function __construct($user)
     {
-        return ['database']; // store in notifications table
+        $this->user = $user;
     }
 
-    public function toDatabase($notifiable): array
+    public function via($notifiable)
+    {
+        return ['database']; // This tells Laravel to save to the 'notifications' table
+    }
+
+    public function toArray($notifiable)
     {
         return [
-            'title' => 'New client assigned',
-            'message' => "{$this->client->name} has been assigned to you.",
-            'client_id' => $this->client->id,
-            'client_name' => $this->client->name,
-            'client_email' => $this->client->email,
+            'title' => 'New Client Assigned',
+            'message' => $this->user->name . ' has been assigned to you.',
+            'url' => route('consultant.notifications.index'),
+        ];
+    }
+    public function toDatabase($notifiable)
+    {
+        return [
+            'title' => 'New Client Assigned',
+            'message' => $this->user->name . ' has been assigned to you.',
+            // Ensure this matches the ->name() in web.php exactly
+            'url' => route('consultant.notifications.index'), 
         ];
     }
 }

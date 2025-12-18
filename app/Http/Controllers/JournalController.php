@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\JournalEntry;
 use App\Models\Quote;
 use Illuminate\Http\Request;
+use App\Notifications\JournalSharedNotification;
+use Illuminate\Support\Facades\Log;
 
 class JournalController extends Controller
 {
@@ -107,25 +109,33 @@ class JournalController extends Controller
             ->with('status', 'Entry restored successfully!');
     }
 
-    public function restoreEntry($id)
-    {
-        $entry = JournalEntry::withTrashed()->findOrFail($id);
-        $entry->restore();
-
-        // Redirect straight to journal.index so the toast shows
-        return redirect()->route('journal.index')
-                        ->with('status', 'Entry restored successfully!');
-    }
-
     /* ---------------------------------------------------------
-        SHARE / UNSHARE ENTRY
+        SHARE ENTRY & NOTIFY CONSULTANT
     --------------------------------------------------------- */
-
     public function share($id)
     {
-        $entry = JournalEntry::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        // 1. Find the entry belonging to the user
+        $entry = JournalEntry::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        // 2. Toggle the sharing status
         $entry->shared_with_consultant = !$entry->shared_with_consultant;
         $entry->save();
+
+        // 3. Notify Consultant only if being shared (not unshared)
+        if ($entry->shared_with_consultant) {
+            $consultant = auth()->user()->consultant;
+
+            if ($consultant) {
+                try {
+                    $consultant->notify(new JournalSharedNotification($entry));
+                    Log::info('Journal share notification sent to ' . $consultant->email);
+                } catch (\Exception $e) {
+                    Log::error('Journal notification failed: ' . $e->getMessage());
+                }
+            }
+        }
 
         return back()->with('status', $entry->shared_with_consultant
             ? 'Journal shared with your consultant.'
@@ -140,7 +150,6 @@ class JournalController extends Controller
         $entry = JournalEntry::where('user_id', auth()->id())
             ->findOrFail($id);
 
-        // Allow edit only if entry is less than 24 hours old
         if ($entry->created_at->lt(now()->subDay())) {
             return redirect()
                 ->route('journal.index')
@@ -158,26 +167,22 @@ class JournalController extends Controller
         $entry = JournalEntry::where('user_id', auth()->id())
             ->findOrFail($id);
 
-        // Validate reflection text
         $request->validate([
             'reflection' => 'required|string',
         ]);
 
-        // Check if editing window expired
         if ($entry->created_at->lt(now()->subDay())) {
             return redirect()
                 ->route('journal.index')
                 ->with('status', 'Edit time has expired.');
         }
 
-        // If no changes
         if ($entry->reflection === $request->reflection) {
             return redirect()
                 ->route('journal.index')
                 ->with('status', 'No changes were made.');
         }
 
-        // Update
         $entry->reflection = $request->reflection;
         $entry->save();
 

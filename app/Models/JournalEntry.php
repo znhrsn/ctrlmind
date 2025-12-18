@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JournalEntry extends Model
 {
@@ -23,4 +24,10 @@ class JournalEntry extends Model
     {
         return $this->belongsTo(Quote::class, 'quote_id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

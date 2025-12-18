@@ -12,6 +12,7 @@ use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\ConsultantDashboardController;
 use App\Http\Controllers\ConsultantNotificationController;
+use App\Notifications\NewClientAssigned;
 
 Route::get('/', function () {
     return view('welcome');
@@ -62,7 +63,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/journal/{id}/share', [\App\Http\Controllers\JournalController::class, 'share'])
     ->middleware('auth')
     ->name('journal.share');
+    // Change 'consultant.notifications.index' to 'consultants.notifications.index'
+    Route::get('/consultant/notifications', [ConsultantNotificationController::class, 'index'])
+        ->name('consultants.notifications.index');
 
+        
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
     Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
