@@ -77,60 +77,31 @@
                         <h3 class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">Scale History</h3>
                         <a href="{{ route('checkin.index') }}" class="text-[10px] text-blue-500 font-bold hover:underline">FULL VIEW</a>
                     </div>
-
                     <div class="space-y-3 overflow-y-auto pr-1 custom-scrollbar" style="height: 220px;">
                         @forelse($recentCheckins as $c)
                             <div x-data="{ showScales: false }" class="bg-gray-50 dark:bg-gray-900/40 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-all hover:border-blue-500/30">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <div class="text-2xl">{{ $emojiMap[$c->mood ?? 3] }}</div>
-                                        <div class="overflow-hidden">
-                                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter leading-none">
-                                                {{ \Carbon\Carbon::parse($c->date)->format('M j, Y') }}
-                                            </div>
-                                            <div class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-1 uppercase">
-                                                {{ $c->period }} Entry
-                                            </div>
+                                        <div>
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{ \Carbon\Carbon::parse($c->date)->format('M j, Y') }}</div>
+                                            <div class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-1 uppercase">{{ $c->period }} Entry</div>
                                         </div>
                                     </div>
                                     <button @click="showScales = !showScales" class="text-gray-400 hover:text-blue-500 transition-colors p-2 focus:outline-none">
-                                        <svg :class="showScales ? 'rotate-180' : ''" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
+                                        <svg :class="showScales ? 'rotate-180' : ''" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 </div>
-
                                 <div x-show="showScales" x-cloak x-transition class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                                     <div class="grid grid-cols-2 gap-2">
                                         @if(strtolower($c->period) == 'morning')
-                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700">
-                                                <span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Energy</span>
-                                                <span class="text-sm font-black text-yellow-500">{{ $c->energy ?? '-' }}/5</span>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700">
-                                                <span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Focus</span>
-                                                <span class="text-sm font-black text-yellow-500">{{ $c->focus ?? '-' }}/5</span>
-                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700"><span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Energy</span><span class="text-sm font-black text-yellow-500">{{ $c->energy ?? '-' }}/5</span></div>
+                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700"><span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Focus</span><span class="text-sm font-black text-yellow-500">{{ $c->focus ?? '-' }}/5</span></div>
                                         @else
-                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700">
-                                                <span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Satisfaction</span>
-                                                <span class="text-sm font-black text-blue-500">{{ $c->satisfaction ?? '-' }}/5</span>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700">
-                                                <span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Self-Kindness</span>
-                                                <span class="text-sm font-black text-blue-500">{{ $c->self_kindness ?? '-' }}/5</span>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700 col-span-2">
-                                                <span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Relaxation</span>
-                                                <span class="text-sm font-black text-blue-500">{{ $c->relaxation ?? '-' }}/5</span>
-                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700"><span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Satisfaction</span><span class="text-sm font-black text-blue-500">{{ $c->satisfaction ?? '-' }}/5</span></div>
+                                            <div class="bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700"><span class="block text-[8px] uppercase text-gray-500 font-bold tracking-widest">Self-Kindness</span><span class="text-sm font-black text-blue-500">{{ $c->self_kindness ?? '-' }}/5</span></div>
                                         @endif
                                     </div>
-                                    @if($c->note)
-                                        <div class="mt-2 bg-gray-100 dark:bg-gray-800/50 p-2 rounded-lg">
-                                            <p class="text-[10px] text-gray-500 italic">"{{ $c->note }}"</p>
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         @empty
@@ -159,15 +130,50 @@
                             <polyline fill="none" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" points="{{ trim($points) }}" />
                         </svg>
                         <div class="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-3 border border-gray-100 dark:border-gray-700/50 w-full max-w-[140px]">
-                            <span class="text-3xl font-black text-gray-800 dark:text-white leading-none">
-                                {{ $avgMood ? number_format($avgMood, 1) : '-' }}
-                            </span>
+                            <span class="text-3xl font-black text-gray-800 dark:text-white leading-none">{{ $avgMood ? number_format($avgMood, 1) : '-' }}</span>
                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-tight mt-1">Average Score</p>
                         </div>
                     </div>
                 </div>
+            </div> <div class="bg-gradient-to-r from-amber-500 to-orange-600 shadow-xl rounded-2xl p-6 text-white flex flex-col lg:flex-row items-center justify-between gap-6 border border-amber-400/30">
+                
+                {{-- Left Side: Text --}}
+                <div class="flex items-center gap-5 flex-1">
+                    <div class="bg-white/10 p-4 rounded-xl backdrop-blur-md text-3xl shadow-inner">💡</div>
+                    <div>
+                        <h3 class="text-xl font-bold">Mental Wellness Suggestions</h3>
+                        <p class="text-amber-100 text-sm opacity-90 max-w-md">
+                            Help us improve. Your identity remains <span class="font-bold underline">100% anonymous</span>.
+                        </p>
+                    </div>
+                </div>
 
-            </div> <footer class="text-center text-sm text-gray-500 mt-8 opacity-50">
+                {{-- Right Side: Form --}}
+                <div class="w-full lg:w-1/2">
+                    <form action="{{ route('suggestions.store') }}" method="POST" class="flex flex-col sm:flex-row gap-3">
+                        @csrf
+                        <div class="relative flex-1">
+                            <input 
+                                type="text"
+                                name="suggestion" 
+                                required
+                                class="w-full bg-white/10 border-white/20 backdrop-blur-md rounded-xl py-4 px-4 text-white placeholder-white/60 focus:ring-0 focus:border-white/40 text-sm transition-all shadow-inner"
+                                placeholder="What's on your mind?">
+                            
+                            <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none opacity-40">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" /></svg>
+                            </div>
+                        </div>
+
+                        <button type="submit" 
+                            class="px-8 py-4 bg-white text-orange-600 font-extrabold rounded-xl hover:bg-amber-50 transition-all shadow-lg active:scale-95 text-center uppercase tracking-wider text-xs whitespace-nowrap">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <footer class="text-center text-sm text-gray-500 mt-8 opacity-50">
                 © 2025 CTRL+Mind EVSU
             </footer>
         </div>

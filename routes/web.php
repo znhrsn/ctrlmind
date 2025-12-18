@@ -13,6 +13,10 @@ use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\ConsultantDashboardController;
 use App\Http\Controllers\ConsultantNotificationController;
 use App\Notifications\NewClientAssigned;
+use App\Http\Controllers\SuggestionController;
+
+// The name must match 'suggestions.store' exactly
+Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
 
 Route::get('/', function () {
     return view('welcome');
@@ -67,7 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/consultant/notifications', [ConsultantNotificationController::class, 'index'])
         ->name('consultants.notifications.index');
 
-        
+
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'index'])->name('quotes.index');
     Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');

@@ -63,12 +63,26 @@
                             Shared Journals
                         </x-nav-link>
 
-                        <form action="{{ route('consultant.search') }}" method="GET" class="ml-4">
-                            <input type="text" name="query" placeholder="Search clients…" 
-                                class="px-3 py-1 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-400 text-sm">
-                            <button type="submit" class="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                                Search
-                            </button>
+                        <form action="{{ route('consultant.search') }}" method="GET" class="relative group ml-6 hidden md:flex items-center">
+                            <div class="absolute left-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+
+                            <input 
+                                type="text" 
+                                name="query" 
+                                value="{{ request('query') }}"
+                                placeholder="Search clients or journals..." 
+                                class="block w-48 lg:w-64 pl-10 pr-12 py-1.5 bg-gray-100 dark:bg-gray-700/50 border-transparent rounded-full text-sm placeholder-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:w-80 transition-all duration-300 ease-in-out dark:text-gray-200"
+                            >
+
+                            <div class="absolute right-3 hidden lg:flex items-center pointer-events-none">
+                                <kbd class="px-1.5 py-0.5 text-[10px] font-sans font-semibold text-gray-400 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                                    ENTER
+                                </kbd>
+                            </div>
                         </form>
                     @endif
 
