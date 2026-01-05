@@ -18,11 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',          // consultant or client
-        'consultant_id', // link to assigned consultant
+        'name', 'email', 'password', 'role', 'gender', 'consultant_pref', 'consultant_id',
     ];
 
     /**
