@@ -9,7 +9,7 @@ class CheckIn extends Model
 {
     use HasFactory;
 
-    protected $table = 'check_ins';
+    protected $table = 'checkins';
 
     protected $fillable = [
         'user_id', 'mood', 'date', 'period', 'energy', 'focus', 'satisfaction', 'self_kindness', 'relaxation', 'note'
