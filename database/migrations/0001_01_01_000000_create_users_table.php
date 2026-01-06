@@ -37,7 +37,7 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('consultant_id')->nullable()->constrained('consultants');
+            $table->foreignId('consultant_id')->nullable()->constrained('users')->onDelete('cascade');
         });
     }
 

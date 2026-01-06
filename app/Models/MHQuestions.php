@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MHQuestions extends Model
 {
-    protected $table = 'MHQuestions';
+    protected $table = 'MH_Questions';
     protected $fillable = ['prompt','type','is_active'];
 }

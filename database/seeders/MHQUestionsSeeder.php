@@ -12,7 +12,7 @@ class MHQUestionsSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\MhQuestion::insert([
+        \App\Models\MHQuestions::insert([
             [
                 'prompt' => 'On a scale of 1–5, how would you rate your mood today?',
                 'type' => 'scale',

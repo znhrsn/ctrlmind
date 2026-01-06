@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(MhQuestionSeeder::class);
+        $this->call(MHQUestionsSeeder::class);
+        $this->call(ResourceSeeder::class);
+        $this->call(ConsultantSeeder::class);
+        $this->call(AccountSeeder::class);
         // User::factory(10)->create();
 
         User::factory()->create([
