@@ -13,13 +13,17 @@ class MoodController extends Controller
     {
         $request->validate([
             'mood' => 'required|string|max:10',
+            'period' => 'required|in:Morning,Evening,morning,evening',
         ]);
+
+        // Normalize period to lowercase to match database enum
+        $period = strtolower($request->period);
 
         CheckIn::create([
             'user_id' => Auth::id(),
             'mood'    => $request->mood,
             'date'    => $request->date,
-            'period'  => $request->period,
+            'period'  => $period,
             'energy' => $request->energy,
             'focus' => $request->focus,
             'satisfaction' => $request->satisfaction,

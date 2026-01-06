@@ -28,7 +28,7 @@ class CheckinController extends Controller
     {
         $validated = $request->validate([
             'date'           => 'required|date',
-            'period'         => 'required|in:Morning,Evening',
+            'period'         => 'required|in:Morning,Evening,morning,evening',
             'mood'           => 'required|integer|min:1|max:5',
             'note'           => 'nullable|string',
             // Survey Scales
@@ -38,6 +38,9 @@ class CheckinController extends Controller
             'self_kindness'  => 'nullable|integer|min:1|max:5',
             'relaxation'     => 'nullable|integer|min:1|max:5',
         ]);
+
+        // Normalize period to lowercase to match database enum
+        $validated['period'] = strtolower($validated['period']);
 
         // Find existing entry for that day/period or create a new one
         \App\Models\Checkin::updateOrCreate(
